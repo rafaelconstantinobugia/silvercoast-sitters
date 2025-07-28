@@ -7,6 +7,10 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
+import { SearchSitters } from "./pages/SearchSitters";
+import { SitterProfile } from "./pages/SitterProfile";
+import { BecomeASitter } from "./pages/BecomeASitter";
+import { BookingCheckout } from "./pages/BookingCheckout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/search" element={<SearchSitters />} />
+            <Route path="/sitter/:id" element={<SitterProfile />} />
+            <Route path="/become-sitter" element={<BecomeASitter />} />
+            <Route path="/booking/:sitterId" element={<BookingCheckout />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

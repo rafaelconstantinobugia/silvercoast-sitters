@@ -39,6 +39,11 @@ export const Header = () => {
               <Link to="/search" className="text-foreground hover:text-primary transition-colors">
                 Find Sitters
               </Link>
+              {user.email === 'r3al4f@gmail.com' && (
+                <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
+                  Admin
+                </Link>
+              )}
               <Button variant="outline" onClick={handleSignOut}>
                 Sign Out
               </Button>
@@ -83,6 +88,15 @@ export const Header = () => {
                   >
                     Find Sitters
                   </Link>
+                  {user.email === 'r3al4f@gmail.com' && (
+                    <Link 
+                      to="/admin" 
+                      className="text-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Admin
+                    </Link>
+                  )}
                   <Button variant="outline" onClick={handleSignOut}>
                     Sign Out
                   </Button>

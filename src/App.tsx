@@ -12,6 +12,7 @@ import { SitterProfile } from "./pages/SitterProfile";
 import { BecomeASitter } from "./pages/BecomeASitter";
 import { BookingCheckout } from "./pages/BookingCheckout";
 import { BookingSuccess } from "./pages/BookingSuccess";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/become-sitter" element={<BecomeASitter />} />
             <Route path="/booking/:sitterId" element={<BookingCheckout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      applicants: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          emergency_contact: string | null
+          experience_years: string | null
+          first_name: string
+          has_insurance: boolean | null
+          id: string
+          last_name: string
+          location: string | null
+          phone: string | null
+          price_per_day: number | null
+          services_offered: string[] | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_contact?: string | null
+          experience_years?: string | null
+          first_name: string
+          has_insurance?: boolean | null
+          id?: string
+          last_name: string
+          location?: string | null
+          phone?: string | null
+          price_per_day?: number | null
+          services_offered?: string[] | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_contact?: string | null
+          experience_years?: string | null
+          first_name?: string
+          has_insurance?: boolean | null
+          id?: string
+          last_name?: string
+          location?: string | null
+          phone?: string | null
+          price_per_day?: number | null
+          services_offered?: string[] | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           created_at: string

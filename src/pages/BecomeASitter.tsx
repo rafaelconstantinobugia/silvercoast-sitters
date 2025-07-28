@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Heart, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -69,11 +70,27 @@ export const BecomeASitter = () => {
 
     setLoading(true);
     try {
-      // TODO: Implement sitter registration
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      const { error } = await supabase.from('applicants').insert({
+        user_id: user.id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone,
+        location: formData.location,
+        experience_years: formData.experience,
+        description: formData.description,
+        services_offered: formData.services,
+        price_per_day: parseFloat(formData.pricePerDay) || 0,
+        emergency_contact: formData.emergencyContact,
+        has_insurance: formData.hasInsurance,
+        status: 'pending'
+      });
+
+      if (error) throw error;
+
       toast.success('Application submitted! We\'ll review your profile and get back to you within 24 hours.');
       navigate('/dashboard');
     } catch (error) {
+      console.error('Error submitting application:', error);
       toast.error('Failed to submit application. Please try again.');
     } finally {
       setLoading(false);

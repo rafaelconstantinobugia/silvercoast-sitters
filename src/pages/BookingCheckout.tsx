@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Calendar, CreditCard, Shield, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -98,11 +99,29 @@ export const BookingCheckout = () => {
   const handlePayment = async () => {
     setLoading(true);
     try {
-      // TODO: Implement Stripe integration
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate payment
-      setStep(3);
-      toast.success('Booking request sent successfully!');
+      const totalPrice = calculateTotalPrice();
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          sitterId: mockSitter.id,
+          startDate: bookingData.startDate,
+          endDate: bookingData.endDate,
+          serviceType: bookingData.serviceType,
+          petDetails: bookingData.petDetails,
+          houseDetails: bookingData.houseDetails,
+          emergencyContact: bookingData.emergencyContact,
+          notes: bookingData.notes,
+          totalPrice: totalPrice
+        }
+      });
+
+      if (error) throw error;
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+      
     } catch (error) {
+      console.error('Payment error:', error);
       toast.error('Payment failed. Please try again.');
     } finally {
       setLoading(false);

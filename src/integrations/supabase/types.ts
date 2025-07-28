@@ -83,7 +83,7 @@ export type Database = {
           payment_status: Database["public"]["Enums"]["payment_status"] | null
           pet_details: Json | null
           service_id: string
-          sitter_id: string
+          sitter_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
@@ -100,7 +100,7 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           pet_details?: Json | null
           service_id: string
-          sitter_id: string
+          sitter_id?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price: number
@@ -117,7 +117,7 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           pet_details?: Json | null
           service_id?: string
-          sitter_id?: string
+          sitter_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_price?: number

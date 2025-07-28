@@ -67,7 +67,7 @@ export const BookNow = () => {
         .insert({
           owner_id: user.id,
           service_id: service.id,
-          sitter_id: "00000000-0000-0000-0000-000000000000", // Placeholder UUID, will be updated by admin
+          sitter_id: null, // Will be assigned by admin later
           start_date: formData.startDate,
           end_date: formData.endDate,
           pet_details: formData.serviceType === "pet" || formData.serviceType === "combined" ? { details: formData.petDetails } : null,

@@ -2,39 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* SilverCoastSitters Design System - Coastal Portugal Inspired
+All colors MUST be HSL for consistency.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors */
+    --background: 39 67% 97%; /* Warm sand white */
+    --foreground: 201 85% 16%; /* Deep ocean blue text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card system */
+    --card: 0 0% 100%; /* Pure white cards */
+    --card-foreground: 201 85% 16%;
 
+    /* Popover system */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 201 85% 16%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary brand - Deep ocean blue */
+    --primary: 201 85% 20%; /* #0D3B66 equivalent */
+    --primary-foreground: 39 67% 97%;
+    --primary-glow: 201 65% 40%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Warm sand */
+    --secondary: 39 67% 88%; /* #FAF0CA equivalent */
+    --secondary-foreground: 201 85% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted tones */
+    --muted: 39 30% 94%;
+    --muted-foreground: 201 25% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Coral red */
+    --accent: 4 86% 58%; /* #F25C54 equivalent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive */
+    --destructive: 4 86% 58%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders and inputs */
+    --border: 39 30% 88%;
+    --input: 39 30% 88%;
+    --ring: 201 85% 20%;
+
+    /* Custom design tokens */
+    --ocean-gradient: linear-gradient(135deg, hsl(201 85% 20%), hsl(201 65% 40%));
+    --sand-gradient: linear-gradient(135deg, hsl(39 67% 88%), hsl(39 67% 97%));
+    --coastal-gradient: linear-gradient(135deg, hsl(201 85% 20%), hsl(39 67% 88%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 6px -1px hsl(201 85% 20% / 0.1), 0 2px 4px -1px hsl(201 85% 20% / 0.06);
+    --shadow-medium: 0 10px 15px -3px hsl(201 85% 20% / 0.1), 0 4px 6px -2px hsl(201 85% 20% / 0.05);
+    --shadow-large: 0 20px 25px -5px hsl(201 85% 20% / 0.1), 0 10px 10px -5px hsl(201 85% 20% / 0.04);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.5rem;
 
@@ -100,6 +124,47 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer components {
+  /* Hero section animations */
+  .hero-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  /* Button variants */
+  .btn-coastal {
+    @apply bg-coastal-gradient text-white font-semibold px-6 py-3 rounded-lg shadow-soft hover:shadow-medium transition-all duration-300 hover:scale-105;
+  }
+  
+  /* Text gradients */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent;
+  }
+  
+  /* Status badges */
+  .badge-verified {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20;
+  }
+  
+  .badge-pending {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20;
+  }
+  
+  .badge-completed {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200;
   }
 }

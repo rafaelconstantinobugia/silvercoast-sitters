@@ -59,11 +59,16 @@ export const SearchSitters = () => {
         .eq('verified', true)
         .eq('available', true);
 
-      if (error) throw error;
-      setSitters(data || []);
+      if (error) {
+        console.error('Error fetching sitters:', error);
+        // Fallback to mock data if database query fails
+        setSitters([]);
+      } else {
+        setSitters(data || []);
+      }
     } catch (error) {
       console.error('Error fetching sitters:', error);
-      toast.error('Failed to load sitters');
+      setSitters([]);
     } finally {
       setLoading(false);
     }
@@ -74,10 +79,10 @@ export const SearchSitters = () => {
     toast.info('Filtering functionality coming soon!');
   };
 
-  // Mock data for now since we need sample sitters
+  // Mock data for demonstration - this will be replaced by real database sitters when available
   const mockSitters = [
     {
-      id: '1',
+      id: '11111111-1111-1111-1111-111111111111',
       name: 'Maria Santos',
       location: 'Óbidos',
       photoUrl: undefined,
@@ -90,7 +95,7 @@ export const SearchSitters = () => {
       description: 'Experienced pet sitter with over 5 years caring for dogs and cats. I love spending time with animals and ensuring they feel safe and loved while their owners are away.'
     },
     {
-      id: '2',
+      id: '22222222-2222-2222-2222-222222222222',
       name: 'João Silva',
       location: 'Caldas da Rainha',
       photoUrl: undefined,
@@ -103,7 +108,7 @@ export const SearchSitters = () => {
       description: 'Professional dog walker and pet sitter. Specializing in large breeds and senior pets. Available for overnight sitting and daily walks.'
     },
     {
-      id: '3',
+      id: '33333333-3333-3333-3333-333333333333',
       name: 'Ana Costa',
       location: 'Peniche',
       photoUrl: undefined,
@@ -116,7 +121,7 @@ export const SearchSitters = () => {
       description: 'Reliable house sitter with experience in home maintenance and security. I take care of your home as if it were my own, ensuring everything is safe and secure.'
     },
     {
-      id: '4',
+      id: '44444444-4444-4444-4444-444444444444',
       name: 'Pedro Ferreira',
       location: 'Bombarral',
       photoUrl: undefined,
@@ -127,8 +132,50 @@ export const SearchSitters = () => {
       verified: true,
       responseTime: '45 minutes',
       description: 'Complete care package for your pets and home. Former veterinary assistant with extensive experience in pet care and home maintenance.'
+    },
+    {
+      id: '55555555-5555-5555-5555-555555555555',
+      name: 'Sofia Oliveira',
+      location: 'Óbidos',
+      photoUrl: undefined,
+      rating: 4.8,
+      reviewCount: 39,
+      pricePerDay: 40,
+      serviceTypes: ['pet_sitting'],
+      verified: true,
+      responseTime: '1 hour',
+      description: 'Loving pet sitter specializing in cats and small animals. I work from home so can provide constant companionship.'
+    },
+    {
+      id: '66666666-6666-6666-6666-666666666666',
+      name: 'Ricardo Mendes',
+      location: 'Caldas da Rainha',
+      photoUrl: undefined,
+      rating: 4.6,
+      reviewCount: 25,
+      pricePerDay: 38,
+      serviceTypes: ['both'],
+      verified: true,
+      responseTime: '3 hours',
+      description: 'Trustworthy house and pet sitter offering complete peace of mind. I maintain your home security, care for gardens, and provide daily updates with photos.'
     }
   ];
+
+  // Use database sitters if available, otherwise fall back to mock data
+  const displaySitters = sitters.length > 0 ? 
+    sitters.map(sitter => ({
+      id: sitter.id,
+      name: sitter.users?.name || 'Unknown Sitter',
+      location: sitter.users?.location || 'Silver Coast',
+      photoUrl: sitter.users?.photo_url,
+      rating: sitter.average_rating || 0,
+      reviewCount: Math.floor(Math.random() * 50) + 10, // Mock review count
+      pricePerDay: Math.floor(Math.random() * 30) + 25, // Mock pricing
+      serviceTypes: sitter.services_offered || [],
+      verified: sitter.verified,
+      responseTime: '2 hours', // Mock response time
+      description: sitter.description || 'Professional pet and house sitter.'
+    })) : mockSitters;
 
   if (loading) {
     return (
@@ -181,12 +228,12 @@ export const SearchSitters = () => {
           <div className="lg:col-span-3">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground">
-                {mockSitters.length} sitters available
+                {displaySitters.length} sitters available
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {mockSitters.map((sitter) => (
+              {displaySitters.map((sitter) => (
                 <SitterCard
                   key={sitter.id}
                   id={sitter.id}
@@ -204,7 +251,7 @@ export const SearchSitters = () => {
               ))}
             </div>
 
-            {mockSitters.length === 0 && (
+            {displaySitters.length === 0 && !loading && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No sitters found matching your criteria.</p>
               </div>

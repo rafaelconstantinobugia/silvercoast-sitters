@@ -37,7 +37,10 @@ export const Header = () => {
                 Dashboard
               </Link>
               <Link to="/search" className="text-foreground hover:text-primary transition-colors">
-                Find Sitters
+                Know Our Sitters
+              </Link>
+              <Link to="/book-now" className="text-foreground hover:text-primary transition-colors">
+                Book Now
               </Link>
               {user.email === 'r3al4f@gmail.com' && (
                 <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
@@ -86,7 +89,14 @@ export const Header = () => {
                     className="text-foreground hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Find Sitters
+                    Know Our Sitters
+                  </Link>
+                  <Link 
+                    to="/book-now" 
+                    className="text-foreground hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Book Now
                   </Link>
                   {user.email === 'r3al4f@gmail.com' && (
                     <Link 

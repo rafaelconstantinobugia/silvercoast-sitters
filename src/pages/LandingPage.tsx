@@ -11,8 +11,12 @@ export const LandingPage = () => {
   const navigate = useNavigate();
 
   const handleFindSitter = () => {
+    navigate('/search'); // Browse sitters and rates
+  };
+
+  const handleBookNow = () => {
     if (user) {
-      navigate('/search');
+      navigate('/book-now');
     } else {
       navigate('/auth');
     }
@@ -42,12 +46,10 @@ export const LandingPage = () => {
                 <Button 
                   size="lg" 
                   className="bg-ocean-gradient text-white hover:opacity-90 text-lg px-8 py-4"
-                  asChild
+                  onClick={handleBookNow}
                 >
-                  <Link to="/book-now">
-                    Book Now
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Link>
+                  Book Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
                   variant="outline"
@@ -55,7 +57,7 @@ export const LandingPage = () => {
                   className="text-lg px-8 py-4"
                   onClick={handleFindSitter}
                 >
-                  Find a Sitter
+                  Know Our Sitters
                 </Button>
                 {!user && (
                   <Button variant="outline" size="lg" asChild className="text-lg px-8 py-4">
@@ -165,7 +167,7 @@ export const LandingPage = () => {
             <Button 
               size="lg" 
               className="bg-ocean-gradient text-white hover:opacity-90 text-lg px-8 py-4"
-              onClick={handleFindSitter}
+              onClick={handleBookNow}
             >
               Get Started Today
               <ArrowRight className="ml-2 w-5 h-5" />

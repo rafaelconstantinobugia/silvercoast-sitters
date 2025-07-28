@@ -150,7 +150,7 @@ export const Dashboard = () => {
               </Link>
             </Button>
             <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
-              <Link to="/search">
+              <Link to="/book-now">
                 <Plus className="w-4 h-4 mr-2" />
                 Request New Sitting
               </Link>
@@ -178,9 +178,9 @@ export const Dashboard = () => {
                   Start by finding a trusted sitter in your area
                 </p>
                 <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
-                  <Link to="/search">
+                  <Link to="/book-now">
                     <Plus className="w-4 h-4 mr-2" />
-                    Find a Sitter
+                    Book a Sitter
                   </Link>
                 </Button>
               </CardContent>

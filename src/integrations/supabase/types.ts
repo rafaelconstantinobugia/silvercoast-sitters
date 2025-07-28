@@ -345,6 +345,7 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+        | "assigned"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       service_type: "pet" | "house" | "combined"
       user_type: "owner" | "sitter" | "admin"
@@ -481,6 +482,7 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+        "assigned",
       ],
       payment_status: ["pending", "paid", "failed", "refunded"],
       service_type: ["pet", "house", "combined"],

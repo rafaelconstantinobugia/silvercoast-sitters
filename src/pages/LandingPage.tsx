@@ -42,10 +42,20 @@ export const LandingPage = () => {
                 <Button 
                   size="lg" 
                   className="bg-ocean-gradient text-white hover:opacity-90 text-lg px-8 py-4"
+                  asChild
+                >
+                  <Link to="/book-now">
+                    Book Now
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="lg" 
+                  className="text-lg px-8 py-4"
                   onClick={handleFindSitter}
                 >
                   Find a Sitter
-                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 {!user && (
                   <Button variant="outline" size="lg" asChild className="text-lg px-8 py-4">

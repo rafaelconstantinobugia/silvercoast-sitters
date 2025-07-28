@@ -21,7 +21,7 @@ export const BookNow = () => {
     startDate: "",
     endDate: "",
     location: "",
-    petDetails: "",
+    pets: [{ name: "", breed: "", age: "", specialNeeds: "" }],
     houseDetails: "",
     specialInstructions: "",
     contactPhone: "",
@@ -30,6 +30,31 @@ export const BookNow = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePetChange = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      pets: prev.pets.map((pet, i) => 
+        i === index ? { ...pet, [field]: value } : pet
+      )
+    }));
+  };
+
+  const addPet = () => {
+    setFormData(prev => ({
+      ...prev,
+      pets: [...prev.pets, { name: "", breed: "", age: "", specialNeeds: "" }]
+    }));
+  };
+
+  const removePet = (index: number) => {
+    if (formData.pets.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        pets: prev.pets.filter((_, i) => i !== index)
+      }));
+    }
   };
 
   const handleQuickBook = async () => {
@@ -70,7 +95,7 @@ export const BookNow = () => {
           sitter_id: null, // Will be assigned by admin later
           start_date: formData.startDate,
           end_date: formData.endDate,
-          pet_details: formData.serviceType === "pet" || formData.serviceType === "combined" ? { details: formData.petDetails } : null,
+          pet_details: formData.serviceType === "pet" || formData.serviceType === "combined" ? { pets: formData.pets } : null,
           house_details: formData.serviceType === "house" || formData.serviceType === "combined" ? { details: formData.houseDetails } : null,
           notes: `Location: ${formData.location}\nPhone: ${formData.contactPhone}\nPreferred Time: ${formData.preferredTime}\nSpecial Instructions: ${formData.specialInstructions}`,
           total_price: service.base_price,
@@ -211,14 +236,69 @@ export const BookNow = () => {
 
             {/* Pet Details */}
             {formData.serviceType === "pet" || formData.serviceType === "combined" ? (
-              <div className="space-y-2">
-                <Label htmlFor="petDetails">Pet Details</Label>
-                <Textarea
-                  id="petDetails"
-                  placeholder="Tell us about your pets (breed, age, special needs, etc.)"
-                  value={formData.petDetails}
-                  onChange={(e) => handleInputChange("petDetails", e.target.value)}
-                />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Pet Details</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addPet}>
+                    Add Another Pet
+                  </Button>
+                </div>
+                {formData.pets.map((pet, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">Pet {index + 1}</h4>
+                      {formData.pets.length > 1 && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removePet(index)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor={`petName-${index}`}>Name</Label>
+                        <Input
+                          id={`petName-${index}`}
+                          placeholder="Pet's name"
+                          value={pet.name}
+                          onChange={(e) => handlePetChange(index, "name", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`petBreed-${index}`}>Breed</Label>
+                        <Input
+                          id={`petBreed-${index}`}
+                          placeholder="Pet's breed"
+                          value={pet.breed}
+                          onChange={(e) => handlePetChange(index, "breed", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`petAge-${index}`}>Age</Label>
+                        <Input
+                          id={`petAge-${index}`}
+                          placeholder="Pet's age"
+                          value={pet.age}
+                          onChange={(e) => handlePetChange(index, "age", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`petSpecialNeeds-${index}`}>Special Needs</Label>
+                        <Input
+                          id={`petSpecialNeeds-${index}`}
+                          placeholder="Any special needs or medications"
+                          value={pet.specialNeeds}
+                          onChange={(e) => handlePetChange(index, "specialNeeds", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
             ) : null}
 

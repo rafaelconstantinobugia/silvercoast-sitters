@@ -203,9 +203,9 @@ export const SearchSitters = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Find Your Perfect Sitter</h1>
+            <h1 className="text-3xl font-bold mb-2">Know Our Sitters</h1>
             <p className="text-muted-foreground">
-              Browse verified pet and house sitters in Portugal's Silver Coast
+              Meet our verified pet and house sitters and see their rates in Portugal's Silver Coast
             </p>
           </div>
           

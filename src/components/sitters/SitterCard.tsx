@@ -121,7 +121,7 @@ export const SitterCard = ({
             <span className="text-lg font-bold">€{pricePerDay}</span>
             <span className="text-sm text-muted-foreground"> /day</span>
           </div>
-          <Button asChild size="sm" className="bg-ocean-gradient text-white hover:opacity-90">
+          <Button asChild size="sm" variant="outline">
             <Link to={`/sitter/${id}`}>
               View Profile
             </Link>

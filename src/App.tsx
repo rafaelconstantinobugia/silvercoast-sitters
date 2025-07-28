@@ -10,6 +10,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { SearchSitters } from "./pages/SearchSitters";
 import { SitterProfile } from "./pages/SitterProfile";
 import { BecomeASitter } from "./pages/BecomeASitter";
+import { BecomeASitterPublic } from "./pages/BecomeASitterPublic";
 import { BookingCheckout } from "./pages/BookingCheckout";
 import { BookingSuccess } from "./pages/BookingSuccess";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -30,7 +31,8 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/search" element={<SearchSitters />} />
             <Route path="/sitter/:id" element={<SitterProfile />} />
-            <Route path="/become-sitter" element={<BecomeASitter />} />
+            <Route path="/become-sitter" element={<BecomeASitterPublic />} />
+            <Route path="/become-sitter-auth" element={<BecomeASitter />} />
             <Route path="/booking/:sitterId" element={<BookingCheckout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />

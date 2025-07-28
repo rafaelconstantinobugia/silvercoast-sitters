@@ -18,16 +18,15 @@ interface Booking {
   status: string;
   payment_status: string;
   notes?: string;
-  services: {
+  services?: {
     name: string;
     service_type: string;
   };
   sitters: {
-    users: {
-      name: string;
-      photo_url?: string;
-    };
+    name: string;
     average_rating: number;
+    photo_url?: string;
+    location?: string;
   };
 }
 
@@ -56,15 +55,17 @@ export const Dashboard = () => {
           *,
           services (name, service_type),
           sitters (
+            name,
             average_rating,
-            users (name, photo_url)
+            photo_url,
+            location
           )
         `)
         .eq('owner_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBookings(data || []);
+      setBookings((data || []) as Booking[]);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Failed to load bookings');
@@ -173,10 +174,10 @@ export const Dashboard = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-lg">
-                          {booking.services.name}
+                          {booking.services?.name || 'Pet/House Sitting'}
                         </CardTitle>
                         <p className="text-muted-foreground">
-                          with {booking.sitters.users.name}
+                          with {booking.sitters.name}
                         </p>
                       </div>
                       {getStatusBadge(booking.status)}

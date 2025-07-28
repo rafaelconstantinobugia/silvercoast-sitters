@@ -221,11 +221,18 @@ export type Database = {
           average_rating: number | null
           created_at: string
           description: string | null
+          email: string | null
           experience_years: number | null
           id: string
+          location: string | null
+          name: string | null
+          phone: string | null
+          photo_url: string | null
+          price_per_day: number | null
+          response_time: string | null
           services_offered: Database["public"]["Enums"]["service_type"][] | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           verified: boolean | null
         }
         Insert: {
@@ -233,13 +240,20 @@ export type Database = {
           average_rating?: number | null
           created_at?: string
           description?: string | null
+          email?: string | null
           experience_years?: number | null
           id?: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          price_per_day?: number | null
+          response_time?: string | null
           services_offered?:
             | Database["public"]["Enums"]["service_type"][]
             | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           verified?: boolean | null
         }
         Update: {
@@ -247,24 +261,23 @@ export type Database = {
           average_rating?: number | null
           created_at?: string
           description?: string | null
+          email?: string | null
           experience_years?: number | null
           id?: string
+          location?: string | null
+          name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          price_per_day?: number | null
+          response_time?: string | null
           services_offered?:
             | Database["public"]["Enums"]["service_type"][]
             | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           verified?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "sitters_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       users: {
         Row: {

@@ -18,17 +18,22 @@ interface FilterState {
 
 interface Sitter {
   id: string;
-  users: {
-    name: string;
-    location?: string;
-    photo_url?: string;
-  };
+  name: string;
+  location: string;
+  phone: string;
+  email: string;
   description?: string;
   services_offered: string[];
   average_rating: number;
   verified: boolean;
   available: boolean;
   experience_years?: number;
+  price_per_day: number;
+  photo_url?: string;
+  response_time: string;
+  user_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const SearchSitters = () => {
@@ -52,16 +57,12 @@ export const SearchSitters = () => {
     try {
       const { data, error } = await supabase
         .from('sitters')
-        .select(`
-          *,
-          users (name, location, photo_url)
-        `)
+        .select('*')
         .eq('verified', true)
         .eq('available', true);
 
       if (error) {
         console.error('Error fetching sitters:', error);
-        // Fallback to mock data if database query fails
         setSitters([]);
       } else {
         setSitters(data || []);
@@ -161,19 +162,25 @@ export const SearchSitters = () => {
     }
   ];
 
-  // Use database sitters if available, otherwise fall back to mock data
+  // Use database sitters if available, otherwise fall back to mock data for empty state
   const displaySitters = sitters.length > 0 ? 
     sitters.map(sitter => ({
       id: sitter.id,
-      name: sitter.users?.name || 'Unknown Sitter',
-      location: sitter.users?.location || 'Silver Coast',
-      photoUrl: sitter.users?.photo_url,
+      name: sitter.name || 'Unknown Sitter',
+      location: sitter.location || 'Silver Coast',
+      photoUrl: sitter.photo_url,
       rating: sitter.average_rating || 0,
-      reviewCount: Math.floor(Math.random() * 50) + 10, // Mock review count
-      pricePerDay: Math.floor(Math.random() * 30) + 25, // Mock pricing
-      serviceTypes: sitter.services_offered || [],
+      reviewCount: Math.floor(Math.random() * 50) + 10, // Mock review count for now
+      pricePerDay: sitter.price_per_day || 35,
+      serviceTypes: sitter.services_offered?.map(service => {
+        // Convert enum values to display format
+        if (service === 'pet') return 'pet_sitting';
+        if (service === 'house') return 'house_sitting';
+        if (service === 'combined') return 'both';
+        return service;
+      }) || [],
       verified: sitter.verified,
-      responseTime: '2 hours', // Mock response time
+      responseTime: sitter.response_time || '2 hours',
       description: sitter.description || 'Professional pet and house sitter.'
     })) : mockSitters;
 

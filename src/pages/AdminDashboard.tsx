@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Shield, Users, Clock, CheckCircle, XCircle, Plus, Edit, Trash2 } from "lucide-react";
+import { EditSitterDialog } from "@/components/admin/EditSitterDialog";
 import { toast } from "sonner";
 
 interface Applicant {
@@ -34,18 +35,22 @@ interface Applicant {
 
 interface Sitter {
   id: string;
-  user_id: string;
+  name: string;
+  location: string;
+  phone: string;
+  email: string;
   description: string;
   services_offered: string[];
   average_rating: number;
   verified: boolean;
   available: boolean;
   experience_years: number;
-  users: {
-    name: string;
-    email: string;
-    location: string;
-  };
+  price_per_day: number;
+  photo_url?: string;
+  response_time: string;
+  user_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const AdminDashboard = () => {
@@ -121,17 +126,14 @@ export const AdminDashboard = () => {
   const fetchSitters = async () => {
     const { data, error } = await supabase
       .from('sitters')
-      .select(`
-        *,
-        users (name, email, location)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching sitters:', error);
       toast.error('Failed to load sitters');
     } else {
-      setSitters(data || []);
+      setSitters((data || []) as Sitter[]);
     }
   };
 
@@ -387,9 +389,9 @@ export const AdminDashboard = () => {
                       <Card key={sitter.id} className="p-4">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="font-semibold">{sitter.users?.name}</h3>
+                            <h3 className="font-semibold">{sitter.name}</h3>
                             <p className="text-sm text-muted-foreground">
-                              {sitter.users?.email} • {sitter.users?.location}
+                              {sitter.email} • {sitter.location}
                             </p>
                           </div>
                           <div className="flex gap-2">
@@ -425,10 +427,7 @@ export const AdminDashboard = () => {
                           >
                             {sitter.available ? 'Deactivate' : 'Activate'}
                           </Button>
-                          <Button size="sm" variant="outline">
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
-                          </Button>
+                          <EditSitterDialog sitter={sitter} onUpdate={fetchSitters} />
                           <Button size="sm" variant="destructive">
                             <Trash2 className="w-4 h-4 mr-1" />
                             Delete

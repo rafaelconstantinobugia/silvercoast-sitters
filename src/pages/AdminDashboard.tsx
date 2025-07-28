@@ -12,7 +12,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Shield, Users, Clock, CheckCircle, XCircle, Plus, Edit, Trash2 } from "lucide-react";
+import { Shield, Users, Clock, CheckCircle, XCircle, Plus, Edit, Trash2, Calendar, Star } from "lucide-react";
 import { EditSitterDialog } from "@/components/admin/EditSitterDialog";
 import { toast } from "sonner";
 
@@ -53,12 +53,40 @@ interface Sitter {
   updated_at: string;
 }
 
+interface Booking {
+  id: string;
+  start_date: string;
+  end_date: string;
+  total_price: number;
+  status: string;
+  payment_status: string;
+  notes?: string;
+  owner_id: string;
+  sitter_id?: string;
+  created_at: string;
+  services?: {
+    name: string;
+    service_type: string;
+  };
+  sitters?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  users?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
 export const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [sitters, setSitters] = useState<Sitter[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -95,7 +123,8 @@ export const AdminDashboard = () => {
         
         await Promise.all([
           fetchApplicants(),
-          fetchSitters()
+          fetchSitters(),
+          fetchBookings()
         ]);
       } else {
         navigate('/dashboard');
@@ -134,6 +163,25 @@ export const AdminDashboard = () => {
       toast.error('Failed to load sitters');
     } else {
       setSitters((data || []) as Sitter[]);
+    }
+  };
+
+  const fetchBookings = async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        services (name, service_type),
+        sitters (name, email, phone),
+        users (name, email, phone)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      toast.error('Failed to load bookings');
+    } else {
+      setBookings((data || []) as Booking[]);
     }
   };
 
@@ -185,6 +233,26 @@ export const AdminDashboard = () => {
     } catch (error) {
       console.error('Error updating sitter status:', error);
       toast.error('Failed to update sitter status');
+    }
+  };
+
+  const handleAssignSitter = async (bookingId: string, sitterId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          sitter_id: sitterId,
+          status: 'assigned'
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+      
+      toast.success('Sitter assigned to booking successfully!');
+      fetchBookings();
+    } catch (error) {
+      console.error('Error assigning sitter:', error);
+      toast.error('Failed to assign sitter');
     }
   };
 
@@ -286,6 +354,7 @@ export const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="sitters">Manage Sitters</TabsTrigger>
+            <TabsTrigger value="bookings">Manage Bookings</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -433,6 +502,80 @@ export const AdminDashboard = () => {
                             Delete
                           </Button>
                         </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Bookings Tab */}
+          <TabsContent value="bookings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {bookings.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    No bookings yet
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings.map((booking) => (
+                      <Card key={booking.id} className="p-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="font-semibold">
+                              {booking.services?.name || 'Pet/House Sitting'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Customer: {booking.users?.name || booking.users?.email}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge 
+                            variant={booking.status === 'pending' ? 'secondary' : 
+                                   booking.status === 'assigned' ? 'default' :
+                                   booking.status === 'completed' ? 'default' : 'destructive'}
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+
+                        <div className="text-sm text-muted-foreground mb-4">
+                          <p>Total Price: €{booking.total_price}</p>
+                          <p>Payment Status: {booking.payment_status}</p>
+                          {booking.sitters && (
+                            <p>Assigned Sitter: {booking.sitters.name} ({booking.sitters.email})</p>
+                          )}
+                          {booking.notes && <p>Notes: {booking.notes}</p>}
+                        </div>
+
+                        {booking.status === 'pending' && (
+                          <div className="flex gap-2 items-center">
+                            <Label htmlFor={`sitter-select-${booking.id}`} className="text-sm">
+                              Assign Sitter:
+                            </Label>
+                            <Select onValueChange={(sitterId) => handleAssignSitter(booking.id, sitterId)}>
+                              <SelectTrigger className="w-64">
+                                <SelectValue placeholder="Select a sitter" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {sitters
+                                  .filter(s => s.available && s.verified)
+                                  .map((sitter) => (
+                                    <SelectItem key={sitter.id} value={sitter.id}>
+                                      {sitter.name} - {sitter.location} (€{sitter.price_per_day}/day)
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                       </Card>
                     ))}
                   </div>

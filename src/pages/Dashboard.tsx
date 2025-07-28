@@ -78,6 +78,8 @@ export const Dashboard = () => {
     switch (status) {
       case 'pending':
         return <Badge variant="secondary" className="badge-pending">Pending</Badge>;
+      case 'assigned':
+        return <Badge variant="default" className="badge-verified">Assigned</Badge>;
       case 'accepted':
         return <Badge variant="default" className="badge-verified">Accepted</Badge>;
       case 'completed':
@@ -86,6 +88,23 @@ export const Dashboard = () => {
         return <Badge variant="destructive">Cancelled</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'cancelled' })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+      
+      toast.success('Booking cancelled successfully');
+      fetchBookings();
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      toast.error('Failed to cancel booking');
     }
   };
 
@@ -205,6 +224,15 @@ export const Dashboard = () => {
                       </span>
                       
                       <div className="flex gap-2">
+                        {booking.status === 'pending' && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => handleCancelBooking(booking.id)}
+                          >
+                            Cancel Booking
+                          </Button>
+                        )}
                         {booking.status === 'completed' && (
                           <Button variant="outline" size="sm">
                             Leave Review

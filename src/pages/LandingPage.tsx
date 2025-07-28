@@ -49,7 +49,7 @@ export const LandingPage = () => {
                 </Button>
                 {!user && (
                   <Button variant="outline" size="lg" asChild className="text-lg px-8 py-4">
-                    <Link to="/auth?mode=signup">Become a Sitter</Link>
+                    <Link to="/become-sitter">Become a Sitter</Link>
                   </Button>
                 )}
               </div>

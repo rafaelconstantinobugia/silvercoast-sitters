@@ -22,12 +22,12 @@ interface Booking {
     name: string;
     service_type: string;
   };
-  sitters: {
+  sitters?: {
     name: string;
     average_rating: number;
     photo_url?: string;
     location?: string;
-  };
+  } | null;
 }
 
 export const Dashboard = () => {
@@ -65,6 +65,7 @@ export const Dashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Fetched bookings:', data);
       setBookings((data || []) as Booking[]);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -196,7 +197,7 @@ export const Dashboard = () => {
                           {booking.services?.name || 'Pet/House Sitting'}
                         </CardTitle>
                         <p className="text-muted-foreground">
-                          with {booking.sitters.name}
+                          {booking.sitters ? `with ${booking.sitters.name}` : 'Waiting for sitter assignment'}
                         </p>
                       </div>
                       {getStatusBadge(booking.status)}
@@ -212,10 +213,12 @@ export const Dashboard = () => {
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span>{booking.sitters.average_rating.toFixed(1)} rating</span>
-                      </div>
+                      {booking.sitters && (
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          <span>{booking.sitters.average_rating.toFixed(1)} rating</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex justify-between items-center">

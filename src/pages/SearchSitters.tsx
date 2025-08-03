@@ -249,7 +249,6 @@ export const SearchSitters = () => {
                   photoUrl={sitter.photoUrl}
                   rating={sitter.rating}
                   reviewCount={sitter.reviewCount}
-                  pricePerDay={sitter.pricePerDay}
                   serviceTypes={sitter.serviceTypes}
                   verified={sitter.verified}
                   responseTime={sitter.responseTime}

@@ -15,6 +15,7 @@ import { BookNow } from "./pages/BookNow";
 import { BookingCheckout } from "./pages/BookingCheckout";
 import { BookingSuccess } from "./pages/BookingSuccess";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { LocationPage } from "./pages/LocationPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/booking/:sitterId" element={<BookingCheckout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/location/:location" element={<LocationPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

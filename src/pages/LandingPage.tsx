@@ -176,6 +176,80 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* Pet Friendly Locations Section */}
+      <section className="py-16 lg:py-24 bg-secondary/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Pet Friendly Locations</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Discover amazing pet-friendly places across the Silver Coast region
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center card-hover">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🏰</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Óbidos</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Medieval charm with pet-friendly cafés and historic walking paths
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/location/obidos">Explore Óbidos</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center card-hover">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">♨️</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Caldas da Rainha</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Thermal parks and gardens perfect for relaxing walks
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/location/caldas">Explore Caldas</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center card-hover">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🌳</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Bombarral</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Peaceful countryside with spacious parks and trails
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/location/bombarral">Explore Bombarral</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center card-hover">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🏖️</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Peniche</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Beautiful beaches and coastal restaurants welcoming pets
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/location/peniche">Explore Peniche</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-12">
         <div className="container mx-auto px-4">

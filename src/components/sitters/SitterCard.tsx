@@ -11,7 +11,6 @@ interface SitterCardProps {
   photoUrl?: string;
   rating: number;
   reviewCount: number;
-  pricePerDay: number;
   serviceTypes: string[];
   verified: boolean;
   responseTime: string;
@@ -25,7 +24,6 @@ export const SitterCard = ({
   photoUrl,
   rating,
   reviewCount,
-  pricePerDay,
   serviceTypes,
   verified,
   responseTime,
@@ -115,12 +113,8 @@ export const SitterCard = ({
           Responds in {responseTime}
         </p>
 
-        {/* Price and CTA */}
-        <div className="flex items-center justify-between pt-2">
-          <div>
-            <span className="text-lg font-bold">€{pricePerDay}</span>
-            <span className="text-sm text-muted-foreground"> /day</span>
-          </div>
+        {/* CTA */}
+        <div className="flex justify-end pt-2">
           <Button asChild size="sm" variant="outline">
             <Link to={`/sitter/${id}`}>
               View Profile

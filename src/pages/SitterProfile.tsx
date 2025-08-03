@@ -153,7 +153,7 @@ export const SitterProfile = () => {
                         size="lg"
                       >
                         <Calendar className="w-4 h-4 mr-2" />
-                        Book Now - €{mockSitter.pricePerDay}/day
+                        Book Now
                       </Button>
                       <Button variant="outline" size="lg">
                         <MessageCircle className="w-4 h-4 mr-2" />
@@ -183,6 +183,33 @@ export const SitterProfile = () => {
                   <div>
                     <h4 className="font-semibold mb-2">Response Time</h4>
                     <p className="text-muted-foreground">Usually within {mockSitter.responseTime}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pricing Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Pricing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                    <span className="font-medium">Pet Sitting</span>
+                    <span className="text-right font-bold">€35/day</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                    <span className="font-medium">House Sitting</span>
+                    <span className="text-right font-bold">€30/day</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                    <span className="font-medium">Pet & House Sitting</span>
+                    <span className="text-right font-bold">€50/day</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                    <span className="font-medium">Overnight Stays</span>
+                    <span className="text-right font-bold">€45/day</span>
                   </div>
                 </div>
               </CardContent>

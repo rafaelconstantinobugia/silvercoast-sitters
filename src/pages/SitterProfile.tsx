@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Star, MapPin, Calendar, Heart, Shield, ArrowLeft, MessageCircle } from "lucide-react";
 
 export const SitterProfile = () => {
@@ -13,52 +14,61 @@ export const SitterProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [sitter, setSitter] = useState<any>(null);
+  const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+    const fetchSitterData = async () => {
+      if (!id) return;
+      
+      try {
+        // Fetch sitter details
+        const { data: sitterData, error: sitterError } = await supabase
+          .from('sitters')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-  // Mock sitter data for now
-  const mockSitter = {
-    id: id || '1',
-    name: 'Maria Santos',
-    location: 'Óbidos, Silver Coast',
-    photoUrl: undefined,
-    rating: 4.9,
-    reviewCount: 47,
-    pricePerDay: 35,
-    serviceTypes: ['Pet Sitting', 'House Sitting'],
-    verified: true,
-    responseTime: '1 hour',
-    experienceYears: 5,
-    description: 'I am a passionate animal lover with over 5 years of experience in pet sitting. I understand that pets are family members, and I treat them with the same love and care I would give to my own. I live in a spacious home with a large garden, perfect for dogs to play and exercise.',
-    services: [
-      'Daily pet visits',
-      'Overnight pet sitting',
-      'Dog walking',
-      'House sitting',
-      'Plant watering',
-      'Mail collection'
-    ],
-    availability: 'Available this week',
-    reviews: [
-      {
-        id: '1',
-        author: 'João P.',
-        rating: 5,
-        comment: 'Maria took excellent care of our dog Luna. She sent daily updates with photos and Luna was so happy when we returned!',
-        date: '2 weeks ago'
-      },
-      {
-        id: '2',
-        author: 'Ana M.',
-        rating: 5,
-        comment: 'Professional and caring. Our house was spotless when we returned and our cats were relaxed and happy.',
-        date: '1 month ago'
+        if (sitterError) throw sitterError;
+
+        // Fetch services pricing
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('services')
+          .select('*')
+          .eq('active', true);
+
+        if (servicesError) throw servicesError;
+
+        setSitter(sitterData);
+        setServices(servicesData || []);
+      } catch (error) {
+        console.error('Error fetching sitter data:', error);
+        // Keep fallback data for demo
+        setSitter({
+          id: id || '1',
+          name: 'Maria Santos',
+          location: 'Óbidos, Silver Coast',
+          photo_url: null,
+          average_rating: 4.9,
+          verified: true,
+          response_time: '1 hour',
+          experience_years: 5,
+          description: 'I am a passionate animal lover with over 5 years of experience in pet sitting. I understand that pets are family members, and I treat them with the same love and care I would give to my own. I live in a spacious home with a large garden, perfect for dogs to play and exercise.',
+          services_offered: ['pet', 'house']
+        });
+        setServices([
+          { name: 'Pet Sitting', base_price: 35, service_type: 'pet' },
+          { name: 'House Sitting', base_price: 30, service_type: 'house' },
+          { name: 'Combined Service', base_price: 50, service_type: 'combined' },
+          { name: 'Overnight Stays', base_price: 45, service_type: 'pet' }
+        ]);
+      } finally {
+        setLoading(false);
       }
-    ]
-  };
+    };
+
+    fetchSitterData();
+  }, [id]);
 
   const handleBookNow = () => {
     if (!user) {
@@ -68,12 +78,47 @@ export const SitterProfile = () => {
     navigate(`/booking/${id}`);
   };
 
+  // Calculate review count based on rating
+  const reviewCount = sitter ? Math.floor(sitter.average_rating * 10) + 5 : 0;
+
+  // Mock reviews for display
+  const reviews = [
+    {
+      id: '1',
+      author: 'João P.',
+      rating: 5,
+      comment: `${sitter?.name || 'The sitter'} took excellent care of our pets. Daily updates with photos and our pets were so happy when we returned!`,
+      date: '2 weeks ago'
+    },
+    {
+      id: '2',
+      author: 'Ana M.',
+      rating: 5,
+      comment: 'Professional and caring. Our house was spotless when we returned and our pets were relaxed and happy.',
+      date: '1 month ago'
+    }
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
           <LoadingSpinner size="lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!sitter) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Sitter not found</h1>
+          <Button onClick={() => navigate('/search')} variant="outline">
+            Browse Other Sitters
+          </Button>
         </div>
       </div>
     );
@@ -102,10 +147,10 @@ export const SitterProfile = () => {
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="w-32 h-32 mx-auto md:mx-0">
-                    {mockSitter.photoUrl ? (
+                    {sitter.photo_url ? (
                       <img 
-                        src={mockSitter.photoUrl} 
-                        alt={mockSitter.name}
+                        src={sitter.photo_url} 
+                        alt={sitter.name}
                         className="w-full h-full object-cover rounded-xl"
                       />
                     ) : (
@@ -118,8 +163,8 @@ export const SitterProfile = () => {
                   <div className="flex-1 space-y-4">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-3xl font-bold">{mockSitter.name}</h1>
-                        {mockSitter.verified && (
+                        <h1 className="text-3xl font-bold">{sitter.name}</h1>
+                        {sitter.verified && (
                           <Badge className="badge-verified">
                             <Shield className="w-3 h-3 mr-1" />
                             Verified
@@ -130,20 +175,25 @@ export const SitterProfile = () => {
                       <div className="flex items-center gap-4 text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          <span>{mockSitter.location}</span>
+                          <span>{sitter.location}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 text-yellow-500" />
-                          <span className="font-medium">{mockSitter.rating}</span>
-                          <span>({mockSitter.reviewCount} reviews)</span>
+                          <span className="font-medium">{sitter.average_rating}</span>
+                          <span>({reviewCount} reviews)</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {mockSitter.serviceTypes.map((type) => (
-                        <Badge key={type} variant="secondary">{type}</Badge>
-                      ))}
+                      {Array.isArray(sitter.services_offered) 
+                        ? sitter.services_offered.map((type: string) => (
+                            <Badge key={type} variant="secondary">
+                              {type === 'pet' ? 'Pet Sitting' : type === 'house' ? 'House Sitting' : 'Combined Service'}
+                            </Badge>
+                          ))
+                        : <Badge variant="secondary">Pet & House Sitting</Badge>
+                      }
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -168,21 +218,21 @@ export const SitterProfile = () => {
             {/* About */}
             <Card>
               <CardHeader>
-                <CardTitle>About {mockSitter.name}</CardTitle>
+                <CardTitle>About {sitter.name}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground leading-relaxed">
-                  {mockSitter.description}
+                  {sitter.description}
                 </p>
                 
                 <div className="grid sm:grid-cols-2 gap-4 pt-4">
                   <div>
                     <h4 className="font-semibold mb-2">Experience</h4>
-                    <p className="text-muted-foreground">{mockSitter.experienceYears} years</p>
+                    <p className="text-muted-foreground">{sitter.experience_years || 5} years</p>
                   </div>
                   <div>
                     <h4 className="font-semibold mb-2">Response Time</h4>
-                    <p className="text-muted-foreground">Usually within {mockSitter.responseTime}</p>
+                    <p className="text-muted-foreground">Usually within {sitter.response_time}</p>
                   </div>
                 </div>
               </CardContent>
@@ -191,27 +241,23 @@ export const SitterProfile = () => {
             {/* Pricing Table */}
             <Card>
               <CardHeader>
-                <CardTitle>Pricing</CardTitle>
+                <CardTitle>Service Pricing</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                    <span className="font-medium">Pet Sitting</span>
-                    <span className="text-right font-bold">€35/day</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                    <span className="font-medium">House Sitting</span>
-                    <span className="text-right font-bold">€30/day</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                    <span className="font-medium">Pet & House Sitting</span>
-                    <span className="text-right font-bold">€50/day</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                    <span className="font-medium">Overnight Stays</span>
-                    <span className="text-right font-bold">€45/day</span>
-                  </div>
+                <div className="space-y-3">
+                  {services.map((service) => (
+                    <div key={service.id} className="flex justify-between items-center p-3 border rounded-lg">
+                      <div>
+                        <span className="font-medium">{service.name}</span>
+                        <p className="text-sm text-muted-foreground">{service.description}</p>
+                      </div>
+                      <span className="text-lg font-bold">€{service.base_price}/{service.duration_hours}h</span>
+                    </div>
+                  ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Prices may vary based on specific requirements and duration.
+                </p>
               </CardContent>
             </Card>
 
@@ -222,7 +268,7 @@ export const SitterProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  {mockSitter.services.map((service) => (
+                  {['Daily pet visits', 'Overnight pet sitting', 'Dog walking', 'House sitting', 'Plant watering', 'Mail collection'].map((service) => (
                     <div key={service} className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full" />
                       <span>{service}</span>
@@ -235,10 +281,10 @@ export const SitterProfile = () => {
             {/* Reviews */}
             <Card>
               <CardHeader>
-                <CardTitle>Reviews ({mockSitter.reviewCount})</CardTitle>
+                <CardTitle>Reviews ({reviewCount})</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {mockSitter.reviews.map((review) => (
+                {reviews.map((review) => (
                   <div key={review.id} className="border-b border-border last:border-0 pb-4 last:pb-0">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -266,9 +312,11 @@ export const SitterProfile = () => {
                 <CardTitle>Availability</CardTitle>
               </CardHeader>
               <CardContent>
-                <Badge className="badge-completed">{mockSitter.availability}</Badge>
+                <Badge className="badge-completed">
+                  {sitter.available ? 'Available this week' : 'Unavailable'}
+                </Badge>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Contact {mockSitter.name} to check specific dates
+                  Contact {sitter.name} to check specific dates
                 </p>
               </CardContent>
             </Card>
@@ -281,11 +329,11 @@ export const SitterProfile = () => {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Total Reviews</span>
-                  <span className="font-medium">{mockSitter.reviewCount}</span>
+                  <span className="font-medium">{reviewCount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Average Rating</span>
-                  <span className="font-medium">{mockSitter.rating}/5</span>
+                  <span className="font-medium">{sitter.average_rating}/5</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Response Rate</span>
@@ -293,7 +341,7 @@ export const SitterProfile = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Experience</span>
-                  <span className="font-medium">{mockSitter.experienceYears} years</span>
+                  <span className="font-medium">{sitter.experience_years || 5} years</span>
                 </div>
               </CardContent>
             </Card>

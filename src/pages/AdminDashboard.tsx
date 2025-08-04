@@ -258,6 +258,27 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteSitter = async (sitterId: string, sitterName: string) => {
+    if (!confirm(`Tem a certeza que quer apagar o sitter "${sitterName}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('sitters')
+        .delete()
+        .eq('id', sitterId);
+
+      if (error) throw error;
+      
+      toast.success(`Sitter "${sitterName}" apagado com sucesso`);
+      fetchSitters();
+    } catch (error) {
+      console.error('Error deleting sitter:', error);
+      toast.error('Erro ao apagar sitter');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -499,7 +520,11 @@ export const AdminDashboard = () => {
                             {sitter.available ? 'Deactivate' : 'Activate'}
                           </Button>
                           <EditSitterDialog sitter={sitter} onUpdate={fetchSitters} />
-                          <Button size="sm" variant="destructive">
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => handleDeleteSitter(sitter.id, sitter.name)}
+                          >
                             <Trash2 className="w-4 h-4 mr-1" />
                             Delete
                           </Button>

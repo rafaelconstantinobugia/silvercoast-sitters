@@ -153,6 +153,7 @@ export const AdminDashboard = () => {
   };
 
   const fetchSitters = async () => {
+    console.log('Fetching sitters...');
     const { data, error } = await supabase
       .from('sitters')
       .select('*')
@@ -162,6 +163,7 @@ export const AdminDashboard = () => {
       console.error('Error fetching sitters:', error);
       toast.error('Failed to load sitters');
     } else {
+      console.log('Fetched sitters:', data);
       setSitters((data || []) as Sitter[]);
     }
   };

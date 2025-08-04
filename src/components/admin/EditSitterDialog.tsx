@@ -177,6 +177,7 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
       }
 
       toast.success('Sitter updated successfully!');
+      console.log('Calling onUpdate to refresh sitters list...');
       setOpen(false);
       onUpdate();
     } catch (error) {

@@ -215,6 +215,51 @@ export type Database = {
         }
         Relationships: []
       }
+      sitter_services: {
+        Row: {
+          available: boolean | null
+          created_at: string | null
+          custom_price: number
+          id: string
+          service_id: string
+          sitter_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          available?: boolean | null
+          created_at?: string | null
+          custom_price: number
+          id?: string
+          service_id: string
+          sitter_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          available?: boolean | null
+          created_at?: string | null
+          custom_price?: number
+          id?: string
+          service_id?: string
+          sitter_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sitter_services_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sitters: {
         Row: {
           available: boolean | null

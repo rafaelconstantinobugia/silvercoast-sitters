@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Shield, Users, Clock, CheckCircle, XCircle, Plus, Edit, Trash2, Calendar, Star } from "lucide-react";
@@ -82,6 +83,7 @@ interface Booking {
 
 export const AdminDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -259,7 +261,7 @@ export const AdminDashboard = () => {
   };
 
   const handleDeleteSitter = async (sitterId: string, sitterName: string) => {
-    if (!confirm(`Tem a certeza que quer apagar o sitter "${sitterName}"? Esta ação não pode ser desfeita.`)) {
+    if (!confirm(t('admin.deleteConfirmation').replace('{name}', sitterName))) {
       return;
     }
 
@@ -271,11 +273,11 @@ export const AdminDashboard = () => {
 
       if (error) throw error;
       
-      toast.success(`Sitter "${sitterName}" apagado com sucesso`);
+      toast.success(t('admin.deleteSuccess').replace('{name}', sitterName));
       fetchSitters();
     } catch (error) {
       console.error('Error deleting sitter:', error);
-      toast.error('Erro ao apagar sitter');
+      toast.error(t('admin.deleteError'));
     }
   };
 
@@ -312,8 +314,8 @@ export const AdminDashboard = () => {
         <div className="flex items-center gap-3 mb-8">
           <Shield className="w-8 h-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage sitters and applications</p>
+            <h1 className="text-3xl font-bold">{t('admin.dashboard')}</h1>
+            <p className="text-muted-foreground">{t('admin.manageSittersAndApplications')}</p>
           </div>
         </div>
 
@@ -323,7 +325,7 @@ export const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Pending Applications</p>
+                  <p className="text-sm text-muted-foreground">{t('admin.pendingApplications')}</p>
                   <p className="text-2xl font-bold">
                     {applicants.filter(a => a.status === 'pending').length}
                   </p>

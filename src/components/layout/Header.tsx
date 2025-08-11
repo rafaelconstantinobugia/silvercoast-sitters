@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Heart, Menu, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export const Header = () => {
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -34,30 +37,32 @@ export const Header = () => {
           {user ? (
             <>
               <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
-                Dashboard
+                {t('header.dashboard')}
               </Link>
               <Link to="/search" className="text-foreground hover:text-primary transition-colors">
-                Know Our Sitters
+                {t('header.knowOurSitters')}
               </Link>
               <Link to="/book-now" className="text-foreground hover:text-primary transition-colors">
-                Book Now
+                {t('header.bookNow')}
               </Link>
               {user.email === 'r3al4f@gmail.com' && (
                 <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
-                  Admin
+                  {t('header.admin')}
                 </Link>
               )}
+              <LanguageSwitcher />
               <Button variant="outline" onClick={handleSignOut}>
-                Sign Out
+                {t('header.signOut')}
               </Button>
             </>
           ) : (
             <>
               <Link to="/auth" className="text-foreground hover:text-primary transition-colors">
-                Login
+                {t('header.login')}
               </Link>
+              <LanguageSwitcher />
               <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
-                <Link to="/auth?mode=signup">Sign Up as Sitter</Link>
+                <Link to="/auth?mode=signup">{t('header.signUpAsSitter')}</Link>
               </Button>
             </>
           )}
@@ -82,21 +87,21 @@ export const Header = () => {
                     className="text-foreground hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Dashboard
+                    {t('header.dashboard')}
                   </Link>
                   <Link 
                     to="/search" 
                     className="text-foreground hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Know Our Sitters
+                    {t('header.knowOurSitters')}
                   </Link>
                   <Link 
                     to="/book-now" 
                     className="text-foreground hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Book Now
+                    {t('header.bookNow')}
                   </Link>
                   {user.email === 'r3al4f@gmail.com' && (
                     <Link 
@@ -104,11 +109,14 @@ export const Header = () => {
                       className="text-foreground hover:text-primary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Admin
+                      {t('header.admin')}
                     </Link>
                   )}
+                  <div className="pt-2">
+                    <LanguageSwitcher />
+                  </div>
                   <Button variant="outline" onClick={handleSignOut}>
-                    Sign Out
+                    {t('header.signOut')}
                   </Button>
                 </>
               ) : (
@@ -118,11 +126,14 @@ export const Header = () => {
                     className="text-foreground hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Login
+                    {t('header.login')}
                   </Link>
+                  <div className="pt-2">
+                    <LanguageSwitcher />
+                  </div>
                   <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
                     <Link to="/auth?mode=signup" onClick={() => setIsMenuOpen(false)}>
-                      Sign Up as Sitter
+                      {t('header.signUpAsSitter')}
                     </Link>
                   </Button>
                 </>

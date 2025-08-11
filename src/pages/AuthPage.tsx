@@ -5,18 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Heart } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const AuthPage = () => {
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup');
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -26,11 +30,42 @@ export const AuthPage = () => {
     }
   }, [user, navigate]);
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+      
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgotPassword(false);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      if (isForgotPassword) {
+        await handleForgotPassword(e);
+        return;
+      }
+
       if (isSignUp) {
         if (!name.trim()) {
           toast.error("Please enter your name");
@@ -82,56 +117,57 @@ export const AuthPage = () => {
         <Card className="shadow-large border-0">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
-              {isSignUp ? "Create Account" : "Welcome Back"}
+              {isForgotPassword ? "Reset Password" : 
+               isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
             </CardTitle>
             <CardDescription>
-              {isSignUp 
-                ? "Join our community of trusted sitters" 
-                : "Sign in to your account"
-              }
+              {isForgotPassword ? "Enter your email to receive reset instructions" :
+               isSignUp ? t('auth.joinCommunity') : t('auth.signInToAccount')}
             </CardDescription>
           </CardHeader>
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {isSignUp && (
+              {isSignUp && !isForgotPassword && (
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">{t('auth.fullName')}</Label>
                   <Input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="João Silva"
+                    placeholder="John Silva"
                     required={isSignUp}
                   />
                 </div>
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="joao@example.com"
+                  placeholder="john@example.com"
                   required
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
-                  required
-                  minLength={6}
-                />
-              </div>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t('auth.password')}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={isSignUp ? t('auth.createStrongPassword') : t('auth.enterPassword')}
+                    required
+                    minLength={6}
+                  />
+                </div>
+              )}
               
               <Button 
                 type="submit" 
@@ -141,34 +177,60 @@ export const AuthPage = () => {
                 {loading ? (
                   <LoadingSpinner size="sm" className="mr-2" />
                 ) : null}
-                {isSignUp ? "Create Account" : "Sign In"}
+                {isForgotPassword ? "Send Reset Email" :
+                 isSignUp ? t('auth.createAccount') : t('auth.signIn')}
               </Button>
             </form>
             
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary hover:underline text-sm"
-              >
-                {isSignUp 
-                  ? "Already have an account? Sign in" 
-                  : "Don't have an account? Sign up"
-                }
-              </button>
-            </div>
+            {!isForgotPassword && (
+              <>
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                    className="text-primary hover:underline text-sm"
+                  >
+                    {isSignUp ? t('auth.alreadyHaveAccount') : t('auth.dontHaveAccount')}
+                  </button>
+                </div>
+                
+                {!isSignUp && (
+                  <div className="mt-4 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotPassword(true)}
+                      className="text-primary hover:underline text-sm"
+                    >
+                      {t('auth.forgotPassword')}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+            
+            {isForgotPassword && (
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-primary hover:underline text-sm"
+                >
+                  ← Back to sign in
+                </button>
+              </div>
+            )}
             
             <div className="mt-4 text-center">
               <Link to="/" className="text-muted-foreground hover:text-primary text-sm">
-                ← Back to home
+                {t('auth.backToHome')}
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {isSignUp && (
+        {isSignUp && !isForgotPassword && (
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            By creating an account, you agree to our Terms of Service and Privacy Policy.
+            {t('auth.termsAgreement')}
           </div>
         )}
       </div>

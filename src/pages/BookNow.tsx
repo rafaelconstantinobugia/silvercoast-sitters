@@ -134,8 +134,12 @@ export const BookNow = () => {
     }
     
     if (field === 'sitterId') {
-      const sitter = sitters.find(s => s.id === value);
-      setSelectedSitter(sitter || null);
+      if (value === 'auto') {
+        setSelectedSitter(null);
+      } else {
+        const sitter = sitters.find(s => s.id === value);
+        setSelectedSitter(sitter || null);
+      }
     }
   };
 
@@ -187,7 +191,7 @@ export const BookNow = () => {
         .insert({
           owner_id: user.id,
           service_id: formData.serviceId,
-          sitter_id: formData.sitterId || null, // Optional sitter selection
+          sitter_id: formData.sitterId === 'auto' ? null : formData.sitterId || null, // Optional sitter selection
           start_date: formData.startDate,
           end_date: formData.endDate,
           pet_details: selectedService?.service_type === "pet" || selectedService?.service_type === "combined" 
@@ -315,7 +319,7 @@ export const BookNow = () => {
                   <SelectValue placeholder="Choose a sitter or let us assign one" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Let us assign the best sitter</SelectItem>
+                  <SelectItem value="auto">Let us assign the best sitter</SelectItem>
                   {sitters.map((sitter) => (
                     <SelectItem key={sitter.id} value={sitter.id}>
                       <div className="flex items-center gap-3">

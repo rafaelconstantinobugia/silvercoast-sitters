@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { supabase } from "@/integrations/supabase/client";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
@@ -63,7 +64,8 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
     response_time: sitter.response_time,
     verified: sitter.verified,
     available: sitter.available,
-    services_offered: sitter.services_offered || []
+    services_offered: sitter.services_offered || [],
+    photo_url: sitter.photo_url || null
   });
 
   useEffect(() => {
@@ -143,6 +145,7 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
           response_time: formData.response_time,
           verified: formData.verified,
           available: formData.available,
+          photo_url: formData.photo_url,
           services_offered: sitterServices.map(ss => {
             const service = services.find(s => s.id === ss.service_id);
             return service?.service_type || '';
@@ -240,6 +243,17 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
                 onChange={(e) => handleInputChange('email', e.target.value)}
               />
             </div>
+          </div>
+
+          {/* Photo Upload */}
+          <div className="space-y-2">
+            <Label>Profile Photo</Label>
+            <ImageUpload
+              value={formData.photo_url}
+              onChange={(url) => handleInputChange('photo_url', url || '')}
+              bucket="sitter-photos"
+              path={sitter.id}
+            />
           </div>
 
           {/* Description */}

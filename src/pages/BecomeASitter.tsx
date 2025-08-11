@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Heart, ArrowLeft, Upload } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const BecomeASitter = () => {
@@ -30,7 +31,8 @@ export const BecomeASitter = () => {
     pricePerDay: '',
     emergencyContact: '',
     hasInsurance: false,
-    agreedToTerms: false
+    agreedToTerms: false,
+    photoUrl: null as string | null
   });
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -249,15 +251,12 @@ export const BecomeASitter = () => {
 
         <div className="space-y-4">
           <Label>Profile Photo</Label>
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-            <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Upload a friendly photo of yourself
-            </p>
-            <Button variant="outline" className="mt-2">
-              Choose File
-            </Button>
-          </div>
+          <ImageUpload
+            value={formData.photoUrl}
+            onChange={(url) => handleInputChange('photoUrl', url)}
+            bucket="sitter-photos"
+            path="applicants"
+          />
         </div>
 
         <div className="space-y-4">

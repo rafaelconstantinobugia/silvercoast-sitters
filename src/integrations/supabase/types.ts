@@ -145,6 +145,13 @@ export type Database = {
             referencedRelation: "sitters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bookings_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitters_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reviews: {
@@ -258,6 +265,13 @@ export type Database = {
             referencedRelation: "sitters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sitter_services_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitters_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sitters: {
@@ -362,7 +376,61 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      sitters_public: {
+        Row: {
+          available: boolean | null
+          average_rating: number | null
+          created_at: string | null
+          description: string | null
+          experience_years: number | null
+          id: string | null
+          location: string | null
+          name: string | null
+          photo_url: string | null
+          price_per_day: number | null
+          response_time: string | null
+          services_offered: Database["public"]["Enums"]["service_type"][] | null
+          updated_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          available?: boolean | null
+          average_rating?: number | null
+          created_at?: string | null
+          description?: string | null
+          experience_years?: number | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          photo_url?: string | null
+          price_per_day?: number | null
+          response_time?: string | null
+          services_offered?:
+            | Database["public"]["Enums"]["service_type"][]
+            | null
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          available?: boolean | null
+          average_rating?: number | null
+          created_at?: string | null
+          description?: string | null
+          experience_years?: number | null
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          photo_url?: string | null
+          price_per_day?: number | null
+          response_time?: string | null
+          services_offered?:
+            | Database["public"]["Enums"]["service_type"][]
+            | null
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_booking_price: {
@@ -380,6 +448,13 @@ export type Database = {
           average_rating: number
           verified: boolean
           created_at: string
+        }[]
+      }
+      get_sitter_contact_details: {
+        Args: { sitter_id: string }
+        Returns: {
+          email: string
+          phone: string
         }[]
       }
     }

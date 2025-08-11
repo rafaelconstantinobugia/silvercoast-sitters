@@ -47,10 +47,10 @@ export const SearchSitters = () => {
 
   const fetchSitters = async () => {
     try {
+      // Use public view that excludes sensitive data like email and phone
       const { data, error } = await supabase
-        .from('sitters')
+        .from('sitters_public')
         .select('*')
-        .eq('verified', true)
         .eq('available', true)
         .order('average_rating', { ascending: false });
 

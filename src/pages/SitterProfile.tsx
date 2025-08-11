@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, Calendar, Heart, Shield, ArrowLeft, MessageCircle } from "lucide-react";
+import { Star, MapPin, Calendar, Heart, Shield, ArrowLeft, MessageCircle, Phone, Mail } from "lucide-react";
 
 export const SitterProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,20 +16,34 @@ export const SitterProfile = () => {
   const [loading, setLoading] = useState(true);
   const [sitter, setSitter] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
+  const [contactDetails, setContactDetails] = useState<{ email: string; phone: string } | null>(null);
 
   useEffect(() => {
     const fetchSitterData = async () => {
       if (!id) return;
       
       try {
-        // Fetch sitter details
+        // Use public view for basic sitter info (no sensitive data)
         const { data: sitterData, error: sitterError } = await supabase
-          .from('sitters')
+          .from('sitters_public')
           .select('*')
           .eq('id', id)
           .single();
 
         if (sitterError) throw sitterError;
+
+        // If user is authenticated, get contact details separately
+        if (user) {
+          const { data: contactData, error: contactError } = await supabase
+            .rpc('get_sitter_contact_details', { sitter_id: id });
+          
+          if (contactData && contactData.length > 0) {
+            setContactDetails({
+              email: contactData[0].email,
+              phone: contactData[0].phone
+            });
+          }
+        }
 
         // Fetch services pricing
         const { data: servicesData, error: servicesError } = await supabase
@@ -210,6 +224,27 @@ export const SitterProfile = () => {
                         Message
                       </Button>
                     </div>
+
+                    {/* Contact Information - Only for authenticated users */}
+                    {user && contactDetails && (
+                      <div className="border-t pt-4 mt-4">
+                        <h4 className="font-semibold mb-3">Contact Information</h4>
+                        <div className="space-y-2">
+                          {contactDetails.email && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="w-4 h-4 text-muted-foreground" />
+                              <span>{contactDetails.email}</span>
+                            </div>
+                          )}
+                          {contactDetails.phone && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Phone className="w-4 h-4 text-muted-foreground" />
+                              <span>{contactDetails.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

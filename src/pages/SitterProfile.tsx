@@ -75,7 +75,7 @@ export const SitterProfile = () => {
       navigate('/auth');
       return;
     }
-    navigate(`/booking/${id}`);
+    navigate(`/book-now?sitter=${id}`);
   };
 
   // Calculate review count based on rating

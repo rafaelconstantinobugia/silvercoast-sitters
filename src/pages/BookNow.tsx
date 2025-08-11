@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Clock, Shield, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Calendar, Clock, Shield, Zap, Star, MapPin, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+interface Service {
+  id: string;
+  name: string;
+  service_type: string;
+  base_price: number;
+  duration_hours: number;
+  description: string;
+}
+
+interface Sitter {
+  id: string;
+  name: string;
+  location: string;
+  photo_url?: string;
+  average_rating: number;
+  verified: boolean;
+  available: boolean;
+}
 
 export const BookNow = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const preSelectedSitterId = searchParams.get('sitter');
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [sitters, setSitters] = useState<Sitter[]>([]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedSitter, setSelectedSitter] = useState<Sitter | null>(null);
+  
   const [formData, setFormData] = useState({
-    serviceType: "",
+    serviceId: "",
+    sitterId: preSelectedSitterId || "",
     startDate: "",
     endDate: "",
     location: "",
@@ -28,8 +58,85 @@ export const BookNow = () => {
     preferredTime: ""
   });
 
+  useEffect(() => {
+    fetchServices();
+    fetchSitters();
+  }, []);
+
+  useEffect(() => {
+    if (preSelectedSitterId && sitters.length > 0) {
+      const sitter = sitters.find(s => s.id === preSelectedSitterId);
+      if (sitter) {
+        setSelectedSitter(sitter);
+        setFormData(prev => ({ ...prev, sitterId: preSelectedSitterId }));
+      }
+    }
+  }, [preSelectedSitterId, sitters]);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .order('service_type', { ascending: true })
+        .order('duration_hours', { ascending: true });
+
+      if (error) throw error;
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      toast.error('Failed to load services');
+    }
+  };
+
+  const fetchSitters = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('sitters')
+        .select('id, name, location, photo_url, average_rating, verified, available')
+        .eq('verified', true)
+        .eq('available', true)
+        .order('average_rating', { ascending: false });
+
+      if (error) throw error;
+      setSitters(data || []);
+    } catch (error) {
+      console.error('Error fetching sitters:', error);
+      toast.error('Failed to load sitters');
+    }
+  };
+
+  const calculateTotalPrice = () => {
+    if (!selectedService || !formData.startDate || !formData.endDate) return 0;
+    
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    const diffInHours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60));
+    
+    if (selectedService.duration_hours === 24) {
+      // Daily service (24h services)
+      const days = Math.ceil(diffInHours / 24);
+      return selectedService.base_price * days;
+    } else {
+      // Hourly service
+      const serviceBlocks = Math.ceil(diffInHours / selectedService.duration_hours);
+      return selectedService.base_price * serviceBlocks;
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    if (field === 'serviceId') {
+      const service = services.find(s => s.id === value);
+      setSelectedService(service || null);
+    }
+    
+    if (field === 'sitterId') {
+      const sitter = sitters.find(s => s.id === value);
+      setSelectedSitter(sitter || null);
+    }
   };
 
   const handlePetChange = (index: number, field: string, value: string) => {
@@ -57,14 +164,14 @@ export const BookNow = () => {
     }
   };
 
-  const handleQuickBook = async () => {
+  const handleSubmitBooking = async () => {
     if (!user) {
       toast.error("Please sign in to book a service");
       navigate("/auth");
       return;
     }
 
-    if (!formData.serviceType || !formData.startDate || !formData.endDate || !formData.location) {
+    if (!formData.serviceId || !formData.startDate || !formData.endDate || !formData.location) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -72,47 +179,54 @@ export const BookNow = () => {
     setIsLoading(true);
 
     try {
-      // Get the appropriate service
-      const { data: services, error: serviceError } = await supabase
-        .from("services")
-        .select("*")
-        .eq("service_type", formData.serviceType as "pet" | "house" | "combined")
-        .eq("active", true)
-        .limit(1);
-
-      if (serviceError || !services || services.length === 0) {
-        throw new Error("Service not available");
-      }
-
-      const service = services[0];
-
-      // Create booking without sitter_id (will be assigned by admin later)
+      const totalPrice = calculateTotalPrice();
+      
+      // Create booking - will be pending admin confirmation
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .insert({
           owner_id: user.id,
-          service_id: service.id,
-          sitter_id: null, // Will be assigned by admin later
+          service_id: formData.serviceId,
+          sitter_id: formData.sitterId || null, // Optional sitter selection
           start_date: formData.startDate,
           end_date: formData.endDate,
-          pet_details: formData.serviceType === "pet" || formData.serviceType === "combined" ? { pets: formData.pets } : null,
-          house_details: formData.serviceType === "house" || formData.serviceType === "combined" ? { details: formData.houseDetails } : null,
+          pet_details: selectedService?.service_type === "pet" || selectedService?.service_type === "combined" 
+            ? { pets: formData.pets } : null,
+          house_details: selectedService?.service_type === "house" || selectedService?.service_type === "combined" 
+            ? { details: formData.houseDetails } : null,
           notes: `Location: ${formData.location}\nPhone: ${formData.contactPhone}\nPreferred Time: ${formData.preferredTime}\nSpecial Instructions: ${formData.specialInstructions}`,
-          total_price: service.base_price,
-          status: "pending"
+          total_price: totalPrice,
+          status: "pending" // All bookings start as pending for admin confirmation
         })
         .select()
         .single();
 
       if (bookingError) throw bookingError;
 
-      toast.success("Booking request submitted! We'll assign a sitter and contact you soon.");
+      toast.success("Booking request submitted! We'll review and confirm within 24 hours.");
       navigate("/dashboard");
     } catch (error) {
       console.error("Booking error:", error);
       toast.error("Failed to submit booking request. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const groupedServices = services.reduce((acc, service) => {
+    if (!acc[service.service_type]) {
+      acc[service.service_type] = [];
+    }
+    acc[service.service_type].push(service);
+    return acc;
+  }, {} as Record<string, Service[]>);
+
+  const getServiceTypeLabel = (type: string) => {
+    switch (type) {
+      case 'pet': return 'Pet Services';
+      case 'house': return 'House Services';
+      case 'combined': return 'Combined Services';
+      default: return type;
     }
   };
 
@@ -127,7 +241,7 @@ export const BookNow = () => {
             Book Your Service Now
           </h1>
           <p className="text-xl text-muted-foreground mb-6">
-            Quick, secure, and reliable pet & house sitting services
+            Choose your service and preferred sitter for personalized care
           </p>
           
           {/* Trust Indicators */}
@@ -138,7 +252,7 @@ export const BookNow = () => {
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-5 w-5 text-primary" />
-              <span>Secure Payment</span>
+              <span>Verified Sitters</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-5 w-5 text-primary" />
@@ -155,23 +269,94 @@ export const BookNow = () => {
               Service Details
             </CardTitle>
             <CardDescription>
-              Tell us what you need and we'll match you with the perfect sitter
+              Select your service and preferred sitter for the best care experience
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Service Type */}
+            {/* Service Selection */}
             <div className="space-y-2">
-              <Label htmlFor="serviceType">Service Type *</Label>
-              <Select onValueChange={(value) => handleInputChange("serviceType", value)}>
+              <Label htmlFor="serviceId">Select Service *</Label>
+              <Select onValueChange={(value) => handleInputChange("serviceId", value)} value={formData.serviceId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select service type" />
+                  <SelectValue placeholder="Choose your service" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pet">Pet Sitting</SelectItem>
-                  <SelectItem value="house">House Sitting</SelectItem>
-                  <SelectItem value="combined">Pet & House Sitting</SelectItem>
+                  {Object.entries(groupedServices).map(([type, typeServices]) => (
+                    <div key={type}>
+                      <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                        {getServiceTypeLabel(type)}
+                      </div>
+                      {typeServices.map((service) => (
+                        <SelectItem key={service.id} value={service.id}>
+                          <div className="flex items-center justify-between w-full">
+                            <span>{service.name}</span>
+                            <span className="text-sm text-muted-foreground ml-2">
+                              €{service.base_price}/{service.duration_hours === 24 ? 'day' : service.duration_hours + 'h'}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </div>
+                  ))}
                 </SelectContent>
               </Select>
+              {selectedService && (
+                <div className="text-sm text-muted-foreground">
+                  {selectedService.description}
+                </div>
+              )}
+            </div>
+
+            {/* Sitter Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="sitterId">Preferred Sitter (Optional)</Label>
+              <Select onValueChange={(value) => handleInputChange("sitterId", value)} value={formData.sitterId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a sitter or let us assign one" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Let us assign the best sitter</SelectItem>
+                  {sitters.map((sitter) => (
+                    <SelectItem key={sitter.id} value={sitter.id}>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={sitter.photo_url || ""} />
+                          <AvatarFallback><User className="h-3 w-3" /></AvatarFallback>
+                        </Avatar>
+                        <div className="flex items-center gap-2">
+                          <span>{sitter.name}</span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            <span className="text-xs">{sitter.average_rating}</span>
+                          </div>
+                          {sitter.verified && (
+                            <Badge variant="secondary" className="text-xs">Verified</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedSitter && (
+                <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={selectedSitter.photo_url || ""} />
+                    <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{selectedSitter.name}</div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-3 w-3" />
+                      <span>{selectedSitter.location}</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 text-yellow-500" />
+                        <span>{selectedSitter.average_rating} rating</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Dates */}
@@ -195,6 +380,19 @@ export const BookNow = () => {
                 />
               </div>
             </div>
+
+            {/* Price Estimation */}
+            {selectedService && formData.startDate && formData.endDate && (
+              <div className="p-4 bg-primary/10 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Estimated Total:</span>
+                  <span className="text-2xl font-bold text-primary">€{calculateTotalPrice()}</span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Final price confirmed after admin review
+                </div>
+              </div>
+            )}
 
             {/* Location */}
             <div className="space-y-2">
@@ -235,7 +433,7 @@ export const BookNow = () => {
             </div>
 
             {/* Pet Details */}
-            {formData.serviceType === "pet" || formData.serviceType === "combined" ? (
+            {selectedService?.service_type === "pet" || selectedService?.service_type === "combined" ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Pet Details</Label>
@@ -303,7 +501,7 @@ export const BookNow = () => {
             ) : null}
 
             {/* House Details */}
-            {formData.serviceType === "house" || formData.serviceType === "combined" ? (
+            {selectedService?.service_type === "house" || selectedService?.service_type === "combined" ? (
               <div className="space-y-2">
                 <Label htmlFor="houseDetails">House Details</Label>
                 <Textarea
@@ -329,7 +527,7 @@ export const BookNow = () => {
             {/* Submit Button */}
             <div className="flex flex-col gap-4 pt-4">
               <Button 
-                onClick={handleQuickBook} 
+                onClick={handleSubmitBooking} 
                 disabled={isLoading}
                 size="lg"
                 className="w-full"
@@ -338,8 +536,8 @@ export const BookNow = () => {
               </Button>
               
               <p className="text-sm text-muted-foreground text-center">
-                We'll review your request and assign a verified sitter within 24 hours.
-                Payment is only charged after you approve the assigned sitter.
+                Step 1: We'll review your request and confirm details within 24 hours.<br/>
+                Step 2: Once confirmed, you'll receive a secure payment link to complete your booking.
               </p>
             </div>
           </CardContent>

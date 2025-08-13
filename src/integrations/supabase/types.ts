@@ -14,11 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       applicants: {
         Row: {
           admin_notes: string | null
           created_at: string
           description: string | null
+          email: string | null
           emergency_contact: string | null
           experience_years: string | null
           first_name: string
@@ -37,6 +68,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           description?: string | null
+          email?: string | null
           emergency_contact?: string | null
           experience_years?: string | null
           first_name: string
@@ -55,6 +87,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           description?: string | null
+          email?: string | null
           emergency_contact?: string | null
           experience_years?: string | null
           first_name?: string
@@ -153,6 +186,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          sitter_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sitter_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sitter_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -273,6 +327,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sitter_services_mapping: {
+        Row: {
+          created_at: string
+          id: string
+          service_id: string
+          sitter_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          service_id: string
+          sitter_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          service_id?: string
+          sitter_id?: string
+        }
+        Relationships: []
       }
       sitters: {
         Row: {
@@ -455,6 +530,22 @@ export type Database = {
         Returns: {
           email: string
           phone: string
+        }[]
+      }
+      get_sitters_by_service: {
+        Args: { service_id_param: string }
+        Returns: {
+          id: string
+          name: string
+          location: string
+          photo_url: string
+          average_rating: number
+          verified: boolean
+          available: boolean
+          price_per_day: number
+          description: string
+          experience_years: number
+          response_time: string
         }[]
       }
     }

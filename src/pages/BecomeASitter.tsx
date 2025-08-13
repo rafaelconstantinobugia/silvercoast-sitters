@@ -76,6 +76,7 @@ export const BecomeASitter = () => {
         user_id: user.id,
         first_name: formData.firstName,
         last_name: formData.lastName,
+        email: user.email, // Use logged-in user's email
         phone: formData.phone,
         location: formData.location,
         experience_years: formData.experience,

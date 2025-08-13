@@ -66,9 +66,10 @@ export const BecomeASitterPublic = () => {
     setLoading(true);
     try {
       const { error } = await supabase.from('applicants').insert({
-        user_id: null, // No user account needed
+        user_id: null, // No user account needed for public applications
         first_name: formData.firstName,
         last_name: formData.lastName,
+        email: formData.email,
         phone: formData.phone,
         location: formData.location,
         experience_years: formData.experience,

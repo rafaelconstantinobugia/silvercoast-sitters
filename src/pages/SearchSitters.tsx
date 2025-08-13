@@ -7,6 +7,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Filter } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FilterState {
   location: string;
@@ -30,7 +31,9 @@ interface Sitter {
 }
 
 export const SearchSitters = () => {
+  const { user } = useAuth();
   const [sitters, setSitters] = useState<Sitter[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -43,7 +46,10 @@ export const SearchSitters = () => {
 
   useEffect(() => {
     fetchSitters();
-  }, []);
+    if (user) {
+      fetchFavorites();
+    }
+  }, [user]);
 
   const fetchSitters = async () => {
     try {
@@ -68,6 +74,56 @@ export const SearchSitters = () => {
     }
   };
 
+  const fetchFavorites = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('sitter_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      setFavorites(data?.map(f => f.sitter_id) || []);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+    }
+  };
+
+  const toggleFavorite = async (sitterId: string) => {
+    if (!user) {
+      toast.error("Please sign in to favorite sitters");
+      return;
+    }
+
+    try {
+      const isFavorited = favorites.includes(sitterId);
+      
+      if (isFavorited) {
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('sitter_id', sitterId);
+        
+        if (error) throw error;
+        setFavorites(prev => prev.filter(id => id !== sitterId));
+        toast.success("Removed from favorites");
+      } else {
+        const { error } = await supabase
+          .from('favorites')
+          .insert({ user_id: user.id, sitter_id: sitterId });
+        
+        if (error) throw error;
+        setFavorites(prev => [...prev, sitterId]);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error("Failed to update favorites");
+    }
+  };
+
   const handleSearch = () => {
     // TODO: Implement filtering logic
     toast.info('Filtering functionality coming soon!');
@@ -86,8 +142,18 @@ export const SearchSitters = () => {
       : [sitter.services_offered || 'pet_sitting'],
     verified: sitter.verified,
     responseTime: sitter.response_time || '2 hours',
-    description: sitter.description || 'Professional pet and house sitter in the Silver Coast region.'
+    description: sitter.description || 'Professional pet and house sitter in the Silver Coast region.',
+    isFavorited: favorites.includes(sitter.id)
   }));
+
+  // Sort to show favorites first for logged-in users
+  const sortedSitters = user 
+    ? displaySitters.sort((a, b) => {
+        if (a.isFavorited && !b.isFavorited) return -1;
+        if (!a.isFavorited && b.isFavorited) return 1;
+        return b.rating - a.rating; // Then by rating
+      })
+    : displaySitters;
 
   if (loading) {
     return (
@@ -107,11 +173,11 @@ export const SearchSitters = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-            Find Your Perfect Sitter
+        <h1 className="text-3xl lg:text-4xl font-bold mb-4">
+            Find Your Perfect Pet Sitter
           </h1>
           <p className="text-xl text-muted-foreground">
-            Browse verified pet and house sitters in Portugal's Silver Coast
+            Browse verified pet and house sitters{user ? '. Your favorites appear first!' : '. Sign in to save favorites!'}
           </p>
         </div>
 
@@ -153,14 +219,14 @@ export const SearchSitters = () => {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground">
-                {displaySitters.length} verified sitters found
+                {sortedSitters.length} verified sitters found
               </p>
             </div>
 
             {/* Sitters Grid */}
-            {displaySitters.length > 0 ? (
+            {sortedSitters.length > 0 ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {displaySitters.map((sitter) => (
+                {sortedSitters.map((sitter) => (
                   <SitterCard
                     key={sitter.id}
                     id={sitter.id}
@@ -173,6 +239,8 @@ export const SearchSitters = () => {
                     verified={sitter.verified}
                     responseTime={sitter.responseTime}
                     description={sitter.description}
+                    isFavorited={sitter.isFavorited}
+                    onFavoriteToggle={user ? () => toggleFavorite(sitter.id) : undefined}
                   />
                 ))}
               </div>

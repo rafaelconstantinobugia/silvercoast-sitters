@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,11 +14,18 @@ import { useNavigate } from "react-router-dom";
 import { Heart, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
+interface Service {
+  id: string;
+  name: string;
+  service_type: string;
+}
+
 export const BecomeASitter = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -34,6 +41,27 @@ export const BecomeASitter = () => {
     agreedToTerms: false,
     photoUrl: null as string | null
   });
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('id, name, service_type')
+        .eq('active', true)
+        .order('service_type', { ascending: true })
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      toast.error('Failed to load services');
+    }
+  };
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -184,21 +212,19 @@ export const BecomeASitter = () => {
         <div className="space-y-4">
           <Label>Services You Offer</Label>
           <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              { id: 'pet_sitting', label: 'Pet Sitting' },
-              { id: 'house_sitting', label: 'House Sitting' },
-              { id: 'dog_walking', label: 'Dog Walking' },
-              { id: 'overnight_care', label: 'Overnight Care' },
-              { id: 'emergency_care', label: 'Emergency Care' },
-              { id: 'plant_care', label: 'Plant Care' }
-            ].map((service) => (
+            {services.map((service) => (
               <div key={service.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={service.id}
                   checked={formData.services.includes(service.id)}
                   onCheckedChange={() => handleServiceToggle(service.id)}
                 />
-                <Label htmlFor={service.id}>{service.label}</Label>
+                <Label htmlFor={service.id} className="text-sm">
+                  {service.name}
+                  <span className="text-xs text-muted-foreground ml-1">
+                    ({service.service_type})
+                  </span>
+                </Label>
               </div>
             ))}
           </div>

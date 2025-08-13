@@ -15,6 +15,8 @@ interface SitterCardProps {
   verified: boolean;
   responseTime: string;
   description: string;
+  isFavorited?: boolean;
+  onFavoriteToggle?: () => void;
 }
 
 export const SitterCard = ({
@@ -27,7 +29,9 @@ export const SitterCard = ({
   serviceTypes,
   verified,
   responseTime,
-  description
+  description,
+  isFavorited = false,
+  onFavoriteToggle
 }: SitterCardProps) => {
   const getServiceTypeBadge = (type: string) => {
     switch (type) {
@@ -60,9 +64,18 @@ export const SitterCard = ({
         )}
         
         {/* Favorite Button */}
-        <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-soft hover:bg-white transition-colors">
-          <Heart className="w-4 h-4 text-muted-foreground hover:text-accent" />
-        </button>
+        {onFavoriteToggle && (
+          <button 
+            onClick={onFavoriteToggle}
+            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center shadow-soft transition-colors ${
+              isFavorited 
+                ? 'bg-red-500 text-white hover:bg-red-600' 
+                : 'bg-white/90 hover:bg-white'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : 'text-muted-foreground hover:text-red-500'}`} />
+          </button>
+        )}
 
         {/* Verified Badge */}
         {verified && (

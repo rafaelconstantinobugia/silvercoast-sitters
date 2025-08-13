@@ -90,17 +90,30 @@ export const BookNow = () => {
     }
   };
 
-  const fetchSitters = async () => {
+  const fetchSitters = async (serviceId?: string) => {
     try {
-      const { data, error } = await supabase
-        .from('sitters')
-        .select('id, name, location, photo_url, average_rating, verified, available')
-        .eq('verified', true)
-        .eq('available', true)
-        .order('average_rating', { ascending: false });
+      let query;
+      
+      if (serviceId) {
+        // Use the function to get sitters filtered by service
+        const { data, error } = await supabase.rpc('get_sitters_by_service', {
+          service_id_param: serviceId
+        });
+        
+        if (error) throw error;
+        setSitters(data || []);
+      } else {
+        // Fetch all verified sitters if no service is selected
+        const { data, error } = await supabase
+          .from('sitters')
+          .select('id, name, location, photo_url, average_rating, verified, available')
+          .eq('verified', true)
+          .eq('available', true)
+          .order('average_rating', { ascending: false });
 
-      if (error) throw error;
-      setSitters(data || []);
+        if (error) throw error;
+        setSitters(data || []);
+      }
     } catch (error) {
       console.error('Error fetching sitters:', error);
       toast.error('Failed to load sitters');
@@ -131,6 +144,13 @@ export const BookNow = () => {
     if (field === 'serviceId') {
       const service = services.find(s => s.id === value);
       setSelectedService(service || null);
+      
+      // Fetch sitters filtered by the selected service
+      if (value) {
+        fetchSitters(value);
+      } else {
+        fetchSitters(); // Fetch all sitters if no service selected
+      }
     }
     
     if (field === 'sitterId') {

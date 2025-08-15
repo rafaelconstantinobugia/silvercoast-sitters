@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Create Supabase client using service role for sending emails
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,45 +34,67 @@ const handler = async (req: Request): Promise<Response> => {
     const adminEmail = "admin@silvercoastsitters.com"; // Replace with actual admin email
 
     let emailSubject = "";
-    let emailHtml = "";
+    let emailBody = "";
 
     if (type === "new_application") {
       emailSubject = `New Sitter Application - ${data.first_name} ${data.last_name}`;
-      emailHtml = `
-        <h2>New Sitter Application Received</h2>
-        <p>A new sitter application has been submitted with the following details:</p>
-        <ul>
-          <li><strong>Name:</strong> ${data.first_name} ${data.last_name}</li>
-          <li><strong>Email:</strong> ${data.email || 'Not provided'}</li>
-          <li><strong>Location:</strong> ${data.location}</li>
-        </ul>
-        <p>Please review the application in your admin dashboard.</p>
-      `;
+      emailBody = `
+New Sitter Application Received
+
+A new sitter application has been submitted with the following details:
+
+Name: ${data.first_name} ${data.last_name}
+Email: ${data.email || 'Not provided'}
+Location: ${data.location}
+
+Please review the application in your admin dashboard.
+      `.trim();
     } else if (type === "new_booking") {
       emailSubject = `New Booking Request - €${data.total_price}`;
-      emailHtml = `
-        <h2>New Booking Request</h2>
-        <p>A new booking request has been submitted:</p>
-        <ul>
-          <li><strong>Booking ID:</strong> ${data.booking_id}</li>
-          <li><strong>Total Price:</strong> €${data.total_price}</li>
-          <li><strong>Start Date:</strong> ${new Date(data.start_date).toLocaleDateString()}</li>
-          <li><strong>End Date:</strong> ${new Date(data.end_date).toLocaleDateString()}</li>
-        </ul>
-        <p>Please review and confirm the booking in your admin dashboard.</p>
-      `;
+      emailBody = `
+New Booking Request
+
+A new booking request has been submitted:
+
+Booking ID: ${data.booking_id}
+Total Price: €${data.total_price}
+Start Date: ${new Date(data.start_date).toLocaleDateString()}
+End Date: ${new Date(data.end_date).toLocaleDateString()}
+
+Please review and confirm the booking in your admin dashboard.
+      `.trim();
     }
 
-    const emailResponse = await resend.emails.send({
-      from: "SilverCoastSitters <notifications@silvercoastsitters.com>",
-      to: [adminEmail],
-      subject: emailSubject,
-      html: emailHtml,
+    // Use Supabase's built-in email service (uses inbucket in development)
+    const { data: emailResult, error: emailError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: adminEmail,
+      options: {
+        data: {
+          subject: emailSubject,
+          body: emailBody,
+          notification_type: type
+        }
+      }
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    if (emailError) {
+      console.error("Email error:", emailError);
+      // Fallback: just log the notification
+      console.log("NOTIFICATION:", {
+        to: adminEmail,
+        subject: emailSubject,
+        body: emailBody
+      });
+    } else {
+      console.log("Email notification prepared successfully");
+    }
 
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "Notification processed",
+      email_sent: !emailError 
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

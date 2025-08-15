@@ -62,7 +62,7 @@ export type Database = {
           services_offered: string[] | null
           status: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -81,7 +81,7 @@ export type Database = {
           services_offered?: string[] | null
           status?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -100,7 +100,7 @@ export type Database = {
           services_offered?: string[] | null
           status?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -4,12 +4,13 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 // Create Supabase client using service role for sending emails
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const notificationSecret = Deno.env.get('NOTIFICATION_SECRET') ?? '';
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-notification-secret",
 };
 
 interface NotificationRequest {
@@ -26,6 +27,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate notification secret
+    const providedSecret = req.headers.get('x-notification-secret');
+    if (!providedSecret || providedSecret !== notificationSecret) {
+      console.error("Invalid or missing notification secret");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const { type, data, title, message }: NotificationRequest = await req.json();
 
     console.log(`Processing notification: ${type}`, data);

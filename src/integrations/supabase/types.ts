@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -509,20 +509,20 @@ export type Database = {
     }
     Functions: {
       calculate_booking_price: {
-        Args: { service_id: string; start_date: string; end_date: string }
+        Args: { end_date: string; service_id: string; start_date: string }
         Returns: number
       }
       get_recent_bookings: {
         Args: Record<PropertyKey, never>
         Returns: {
+          average_rating: number
+          created_at: string
           id: string
           service_name: string
           service_type: Database["public"]["Enums"]["service_type"]
           sitter_name: string
           total_price: number
-          average_rating: number
           verified: boolean
-          created_at: string
         }[]
       }
       get_sitter_contact_details: {
@@ -535,17 +535,17 @@ export type Database = {
       get_sitters_by_service: {
         Args: { service_id_param: string }
         Returns: {
-          id: string
-          name: string
-          location: string
-          photo_url: string
-          average_rating: number
-          verified: boolean
           available: boolean
-          price_per_day: number
+          average_rating: number
           description: string
           experience_years: number
+          id: string
+          location: string
+          name: string
+          photo_url: string
+          price_per_day: number
           response_time: string
+          verified: boolean
         }[]
       }
     }

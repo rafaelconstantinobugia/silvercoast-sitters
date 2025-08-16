@@ -44,6 +44,27 @@ export type Database = {
         }
         Relationships: []
       }
+      app_secrets: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
       applicants: {
         Row: {
           admin_notes: string | null
@@ -178,13 +199,6 @@ export type Database = {
             referencedRelation: "sitters"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bookings_sitter_id_fkey"
-            columns: ["sitter_id"]
-            isOneToOne: false
-            referencedRelation: "sitters_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       favorites: {
@@ -317,13 +331,6 @@ export type Database = {
             columns: ["sitter_id"]
             isOneToOne: false
             referencedRelation: "sitters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sitter_services_sitter_id_fkey"
-            columns: ["sitter_id"]
-            isOneToOne: false
-            referencedRelation: "sitters_public"
             referencedColumns: ["id"]
           },
         ]
@@ -472,66 +479,16 @@ export type Database = {
       }
     }
     Views: {
-      sitters_public: {
-        Row: {
-          available: boolean | null
-          average_rating: number | null
-          created_at: string | null
-          description: string | null
-          experience_years: number | null
-          id: string | null
-          location: string | null
-          name: string | null
-          photo_url: string | null
-          price_per_day: number | null
-          response_time: string | null
-          services_offered: Database["public"]["Enums"]["service_type"][] | null
-          updated_at: string | null
-          verified: boolean | null
-        }
-        Insert: {
-          available?: boolean | null
-          average_rating?: number | null
-          created_at?: string | null
-          description?: string | null
-          experience_years?: number | null
-          id?: string | null
-          location?: string | null
-          name?: string | null
-          photo_url?: string | null
-          price_per_day?: number | null
-          response_time?: string | null
-          services_offered?:
-            | Database["public"]["Enums"]["service_type"][]
-            | null
-          updated_at?: string | null
-          verified?: boolean | null
-        }
-        Update: {
-          available?: boolean | null
-          average_rating?: number | null
-          created_at?: string | null
-          description?: string | null
-          experience_years?: number | null
-          id?: string | null
-          location?: string | null
-          name?: string | null
-          photo_url?: string | null
-          price_per_day?: number | null
-          response_time?: string | null
-          services_offered?:
-            | Database["public"]["Enums"]["service_type"][]
-            | null
-          updated_at?: string | null
-          verified?: boolean | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_booking_price: {
         Args: { end_date: string; service_id: string; start_date: string }
         Returns: number
+      }
+      get_app_secret: {
+        Args: { secret_key: string }
+        Returns: string
       }
       get_recent_bookings: {
         Args: Record<PropertyKey, never>

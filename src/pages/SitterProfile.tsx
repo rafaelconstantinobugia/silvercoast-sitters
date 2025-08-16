@@ -23,11 +23,12 @@ export const SitterProfile = () => {
       if (!id) return;
       
       try {
-        // Use public view for basic sitter info (no sensitive data)
+        // Fetch basic sitter info (excludes sensitive data like email and phone)
         const { data: sitterData, error: sitterError } = await supabase
-          .from('sitters_public')
-          .select('*')
+          .from('sitters')
+          .select('id, name, location, photo_url, average_rating, verified, available, price_per_day, description, experience_years, response_time, services_offered')
           .eq('id', id)
+          .eq('verified', true)
           .single();
 
         if (sitterError) throw sitterError;

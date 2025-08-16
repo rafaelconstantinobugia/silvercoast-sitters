@@ -53,10 +53,11 @@ export const SearchSitters = () => {
 
   const fetchSitters = async () => {
     try {
-      // Use public view that excludes sensitive data like email and phone
+      // Fetch verified sitters directly from sitters table (excludes sensitive data for non-authenticated users)
       const { data, error } = await supabase
-        .from('sitters_public')
-        .select('*')
+        .from('sitters')
+        .select('id, name, location, photo_url, average_rating, verified, available, price_per_day, description, experience_years, response_time, services_offered')
+        .eq('verified', true)
         .eq('available', true)
         .order('average_rating', { ascending: false });
 

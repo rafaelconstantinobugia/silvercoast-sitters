@@ -118,7 +118,9 @@ export const BecomeASitter = () => {
 
       if (error) throw error;
 
-      toast.success('Application submitted! We\'ll review your profile and get back to you within 24 hours.');
+      toast.success('Application submitted successfully!', {
+        description: 'We\'ll review your profile and get back to you within 24 hours.'
+      });
       navigate('/dashboard');
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -255,6 +257,9 @@ export const BecomeASitter = () => {
             placeholder="Tell potential clients about your experience, what makes you special, and why they should trust you with their pets..."
             rows={4}
           />
+          <div className="text-sm text-muted-foreground">
+            Describe your experience, personality, and what makes you the perfect pet sitter.
+          </div>
         </div>
       </CardContent>
     </Card>

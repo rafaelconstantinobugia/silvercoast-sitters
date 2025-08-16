@@ -407,13 +407,13 @@ export const BookNow = () => {
 
             {/* Price Estimation */}
             {selectedService && formData.startDate && formData.endDate && (
-              <div className="p-4 bg-primary/10 rounded-lg">
+              <div className="p-4 bg-ocean-gradient/10 rounded-lg border border-ocean-gradient/20">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Estimated Total:</span>
-                  <span className="text-2xl font-bold text-primary">€{calculateTotalPrice()}</span>
+                  <span className="text-2xl font-bold bg-ocean-gradient bg-clip-text text-transparent">€{calculateTotalPrice()}</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  Final price confirmed after admin review
+                  ✓ Final price confirmed after admin review
                 </div>
               </div>
             )}

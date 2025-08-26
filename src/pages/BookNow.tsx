@@ -205,6 +205,16 @@ export const BookNow = () => {
     try {
       const totalPrice = calculateTotalPrice();
       
+      console.log("Submitting booking with data:", {
+        owner_id: user.id,
+        service_id: formData.serviceId,
+        sitter_id: formData.sitterId === 'auto' ? null : formData.sitterId || null,
+        start_date: formData.startDate,
+        end_date: formData.endDate,
+        total_price: totalPrice,
+        status: "pending"
+      });
+      
       // Create booking - will be pending admin confirmation
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
@@ -223,15 +233,20 @@ export const BookNow = () => {
           status: "pending" // All bookings start as pending for admin confirmation
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (bookingError) throw bookingError;
+      console.log("Booking result:", { booking, bookingError });
+
+      if (bookingError) {
+        console.error("Booking error details:", bookingError);
+        throw bookingError;
+      }
 
       toast.success("Booking request submitted! We'll review and confirm within 24 hours.");
       navigate("/dashboard");
     } catch (error) {
       console.error("Booking error:", error);
-      toast.error("Failed to submit booking request. Please try again.");
+      toast.error(`Failed to submit booking request: ${error.message || 'Please try again.'}`);
     } finally {
       setIsLoading(false);
     }

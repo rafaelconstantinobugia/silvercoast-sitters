@@ -229,13 +229,6 @@ export type Database = {
             referencedRelation: "sitters"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bookings_sitter_id_fkey"
-            columns: ["sitter_id"]
-            isOneToOne: false
-            referencedRelation: "sitters_public_view"
-            referencedColumns: ["sitter_id"]
-          },
         ]
       }
       favorites: {
@@ -378,13 +371,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sitters"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sitter_services_sitter_id_fkey"
-            columns: ["sitter_id"]
-            isOneToOne: false
-            referencedRelation: "sitters_public_view"
-            referencedColumns: ["sitter_id"]
           },
         ]
       }
@@ -532,33 +518,7 @@ export type Database = {
       }
     }
     Views: {
-      sitters_public_view: {
-        Row: {
-          avatar_url: string | null
-          bio_short: string | null
-          location: string | null
-          name: string | null
-          rating: number | null
-          sitter_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio_short?: string | null
-          location?: string | null
-          name?: never
-          rating?: number | null
-          sitter_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio_short?: string | null
-          location?: string | null
-          name?: never
-          rating?: number | null
-          sitter_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_booking_price: {

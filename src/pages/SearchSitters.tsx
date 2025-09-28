@@ -8,6 +8,7 @@ import { Filter } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FilterState {
   location: string;
@@ -32,6 +33,7 @@ interface Sitter {
 
 export const SearchSitters = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [sitters, setSitters] = useState<Sitter[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,19 +55,29 @@ export const SearchSitters = () => {
 
   const fetchSitters = async () => {
     try {
-      // Fetch verified sitters directly from sitters table (excludes sensitive data for non-authenticated users)
-      const { data, error } = await supabase
-        .from('sitters')
-        .select('id, name, location, photo_url, average_rating, verified, available, price_per_day, description, experience_years, response_time, services_offered')
-        .eq('verified', true)
-        .eq('available', true)
-        .order('average_rating', { ascending: false });
+      // Use the public RPC function that works for anonymous users
+      const { data, error } = await supabase.rpc('list_public_sitters' as any);
 
       if (error) {
-        console.error('Error fetching sitters:', error);
+        console.error('Error fetching public sitters:', error);
         setSitters([]);
       } else {
-        setSitters(data || []);
+        // Transform the RPC result to match our Sitter interface
+        const transformedSitters = Array.isArray(data) ? data.map((sitter: any) => ({
+          id: sitter.sitter_id,
+          name: sitter.name,
+          location: sitter.city,
+          photo_url: sitter.avatar_url,
+          average_rating: sitter.rating || 0,
+          verified: true, // All returned sitters are verified
+          available: true, // All returned sitters are available
+          price_per_day: 35, // Default price, will be replaced by service-specific pricing
+          description: sitter.bio_short,
+          experience_years: 2, // Default value
+          response_time: '2 hours', // Default value
+          services_offered: ['pet_sitting'] // Default value
+        })) : [];
+        setSitters(transformedSitters);
       }
     } catch (error) {
       console.error('Error fetching sitters:', error);
@@ -93,7 +105,7 @@ export const SearchSitters = () => {
 
   const toggleFavorite = async (sitterId: string) => {
     if (!user) {
-      toast.error("Please sign in to favorite sitters");
+      toast.error(t('search.signInToFavorite'));
       return;
     }
 
@@ -109,7 +121,7 @@ export const SearchSitters = () => {
         
         if (error) throw error;
         setFavorites(prev => prev.filter(id => id !== sitterId));
-        toast.success("Removed from favorites");
+        toast.success(t('search.removedFromFavorites'));
       } else {
         const { error } = await supabase
           .from('favorites')
@@ -117,17 +129,17 @@ export const SearchSitters = () => {
         
         if (error) throw error;
         setFavorites(prev => [...prev, sitterId]);
-        toast.success("Added to favorites");
+        toast.success(t('search.addedToFavorites'));
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      toast.error("Failed to update favorites");
+      toast.error(t('search.failedToUpdateFavorites'));
     }
   };
 
   const handleSearch = () => {
     // TODO: Implement filtering logic
-    toast.info('Filtering functionality coming soon!');
+    toast.info(t('search.filteringComingSoon'));
   };
 
   // Transform database sitters for display
@@ -175,23 +187,23 @@ export const SearchSitters = () => {
         {/* Header */}
         <div className="mb-8">
         <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-            Find Your Perfect Pet Sitter
+            {t('search.findPerfectSitter')}
           </h1>
           <p className="text-xl text-muted-foreground">
-            Browse verified pet and house sitters{user ? '. Your favorites appear first!' : '. Sign in to save favorites!'}
+            {user ? t('search.browseFavoritesFirst') : t('search.browseSignInToSave')}
           </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar - Desktop */}
            <div className="hidden lg:block lg:w-80">
-             {/* Temporarily disable filters until interface is fixed */}
-             <div className="p-4 border rounded-lg bg-card">
-               <h3 className="font-semibold mb-4">Filters</h3>
-               <p className="text-sm text-muted-foreground">
-                 Advanced filtering coming soon! Currently showing all verified sitters.
-               </p>
-             </div>
+              {/* Temporarily disable filters until interface is fixed */}
+              <div className="p-4 border rounded-lg bg-card">
+                <h3 className="font-semibold mb-4">{t('search.filters')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('search.advancedFilteringComingSoon')}
+                </p>
+              </div>
            </div>
 
           {/* Main Content */}
@@ -204,23 +216,23 @@ export const SearchSitters = () => {
                 className="w-full"
               >
                 <Filter className="w-4 h-4 mr-2" />
-                Filters
+                {t('search.filters')}
               </Button>
               
-               {showMobileFilters && (
-                 <div className="mt-4 p-4 border rounded-lg bg-card">
-                   <h3 className="font-semibold mb-4">Filters</h3>
-                   <p className="text-sm text-muted-foreground">
-                     Advanced filtering coming soon! Currently showing all verified sitters.
-                   </p>
-                 </div>
-               )}
+                 {showMobileFilters && (
+                  <div className="mt-4 p-4 border rounded-lg bg-card">
+                    <h3 className="font-semibold mb-4">{t('search.filters')}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t('search.advancedFilteringComingSoon')}
+                    </p>
+                  </div>
+                )}
             </div>
 
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground">
-                {sortedSitters.length} verified sitters found
+                {sortedSitters.length} {t('search.verifiedSittersFound')}
               </p>
             </div>
 
@@ -247,12 +259,12 @@ export const SearchSitters = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <h3 className="text-lg font-semibold mb-2">No sitters found</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('search.noSittersFound')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Try adjusting your filters or check back later for more sitters.
+                  {t('search.tryAdjustingFilters')}
                 </p>
                 <Button onClick={fetchSitters} variant="outline">
-                  Refresh Results
+                  {t('search.refreshResults')}
                 </Button>
               </div>
             )}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type Language = 'en' | 'pt' | 'es' | 'de' | 'zh' | 'fr';
 
@@ -10,6 +10,23 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Auto-detect language from browser
+const detectLanguage = (): Language => {
+  // First try localStorage
+  const stored = localStorage.getItem('lang') as Language;
+  if (stored && ['en', 'pt', 'es', 'de', 'zh', 'fr'].includes(stored)) {
+    return stored;
+  }
+  
+  // Then browser language
+  const browserLang = (navigator.language || 'pt').slice(0, 2) as Language;
+  if (['en', 'pt', 'es', 'de', 'zh', 'fr'].includes(browserLang)) {
+    return browserLang;
+  }
+  
+  return 'pt'; // Default to Portuguese
+};
+
 const translations = {
   en: {
     // Header
@@ -20,6 +37,36 @@ const translations = {
     'header.signOut': 'Sign Out',
     'header.login': 'Login',
     'header.signUpAsSitter': 'Sign Up as Sitter',
+    'header.enterRegister': 'Enter/Register',
+    'header.profile': 'Profile',
+    'header.myBookings': 'My Bookings',
+    
+    // Search
+    'search.findPerfectSitter': 'Find Your Perfect Pet Sitter',
+    'search.browseFavoritesFirst': 'Browse verified pet and house sitters. Your favorites appear first!',
+    'search.browseSignInToSave': 'Browse verified pet and house sitters. Sign in to save favorites!',
+    'search.signInToFavorite': 'Please sign in to favorite sitters',
+    'search.removedFromFavorites': 'Removed from favorites',
+    'search.addedToFavorites': 'Added to favorites',
+    'search.failedToUpdateFavorites': 'Failed to update favorites',
+    'search.filteringComingSoon': 'Filtering functionality coming soon!',
+    'search.filters': 'Filters',
+    'search.advancedFilteringComingSoon': 'Advanced filtering coming soon! Currently showing all verified sitters.',
+    'search.verifiedSittersFound': 'verified sitters found',
+    'search.noSittersFound': 'No sitters found',
+    'search.tryAdjustingFilters': 'Try adjusting your filters or check back later for more sitters.',
+    'search.refreshResults': 'Refresh Results',
+    
+    // Landing
+    'landing.trustedSitterIn': 'Your trusted sitter in',
+    'landing.threeMinutes': '3 minutes',
+    'landing.connectWithVerified': 'Connect with verified pet and house sitters in Portugal\'s Silver Coast. Safe, transparent, and reliable care for your beloved pets and home.',
+    'landing.bookNow': 'Book Now',
+    'landing.knowOurSitters': 'Know Our Sitters',
+    'landing.becomeASitter': 'Become a Sitter',
+    'landing.verifiedSitters': 'Verified sitters',
+    'landing.securePayments': 'Secure payments',
+    'landing.support247': '24/7 support',
     
     // Auth Page
     'auth.createAccount': 'Create Account',
@@ -90,8 +137,38 @@ const translations = {
     'header.signOut': 'Sair',
     'header.login': 'Entrar',
     'header.signUpAsSitter': 'Registar como Sitter',
+    'header.enterRegister': 'Entrar/Registar',
+    'header.profile': 'Perfil',
+    'header.myBookings': 'As Minhas Reservas',
     
-    // Auth Page
+    // Search
+    'search.findPerfectSitter': 'Encontre o Seu Pet Sitter Perfeito',
+    'search.browseFavoritesFirst': 'Explore sitters verificados de animais e casa. Os seus favoritos aparecem primeiro!',
+    'search.browseSignInToSave': 'Explore sitters verificados de animais e casa. Entre para guardar favoritos!',
+    'search.signInToFavorite': 'Por favor entre para favoritar sitters',
+    'search.removedFromFavorites': 'Removido dos favoritos',
+    'search.addedToFavorites': 'Adicionado aos favoritos',
+    'search.failedToUpdateFavorites': 'Falha ao atualizar favoritos',
+    'search.filteringComingSoon': 'Funcionalidade de filtros em breve!',
+    'search.filters': 'Filtros',
+    'search.advancedFilteringComingSoon': 'Filtros avançados em breve! Atualmente mostrando todos os sitters verificados.',
+    'search.verifiedSittersFound': 'sitters verificados encontrados',
+    'search.noSittersFound': 'Nenhum sitter encontrado',
+    'search.tryAdjustingFilters': 'Tente ajustar os seus filtros ou volte mais tarde para mais sitters.',
+    'search.refreshResults': 'Atualizar Resultados',
+    
+    // Landing
+    'landing.trustedSitterIn': 'O seu sitter de confiança em',
+    'landing.threeMinutes': '3 minutos',
+    'landing.connectWithVerified': 'Conecte-se com sitters verificados de animais e casa na Costa de Prata de Portugal. Cuidado seguro, transparente e confiável para os seus animais e casa queridos.',
+    'landing.bookNow': 'Reservar Agora',
+    'landing.knowOurSitters': 'Conheça os Nossos Sitters',
+    'landing.becomeASitter': 'Tornar-me Sitter',
+    'landing.verifiedSitters': 'Sitters verificados',
+    'landing.securePayments': 'Pagamentos seguros',
+    'landing.support247': 'Suporte 24/7',
+    
+    // Auth Page  
     'auth.createAccount': 'Criar Conta',
     'auth.welcomeBack': 'Bem-vindo de Volta',
     'auth.joinCommunity': 'Junte-se à nossa comunidade de sitters de confiança',
@@ -217,7 +294,12 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(() => detectLanguage());
+
+  useEffect(() => {
+    // Save language preference to localStorage
+    localStorage.setItem('lang', language);
+  }, [language]);
 
   const t = (key: string): string => {
     return translations[language]?.[key] || translations.en[key] || key;

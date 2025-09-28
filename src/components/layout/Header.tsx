@@ -34,13 +34,13 @@ export const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
+          <Link to="/search" className="text-foreground hover:text-primary transition-colors">
+            {t('header.knowOurSitters')}
+          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
                 {t('header.dashboard')}
-              </Link>
-              <Link to="/search" className="text-foreground hover:text-primary transition-colors">
-                {t('header.knowOurSitters')}
               </Link>
               <Link to="/book-now" className="text-foreground hover:text-primary transition-colors">
                 {t('header.bookNow')}
@@ -51,18 +51,37 @@ export const Header = () => {
                 </Link>
               )}
               <LanguageSwitcher />
-              <Button variant="outline" onClick={handleSignOut}>
-                {t('header.signOut')}
-              </Button>
+              <div className="relative">
+                <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                  <User className="w-4 h-4 mr-2" />
+                  {t('header.profile')}
+                </Button>
+                {isMenuOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50">
+                    <div className="py-2">
+                      <Link 
+                        to="/dashboard" 
+                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {t('header.myBookings')}
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                      >
+                        {t('header.signOut')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>
-              <Link to="/auth" className="text-foreground hover:text-primary transition-colors">
-                {t('header.login')}
-              </Link>
               <LanguageSwitcher />
-              <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
-                <Link to="/auth?mode=signup">{t('header.signUpAsSitter')}</Link>
+              <Button asChild variant="outline">
+                <Link to="/auth">{t('header.enterRegister')}</Link>
               </Button>
             </>
           )}
@@ -80,6 +99,13 @@ export const Header = () => {
         {isMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-card border-b border-border md:hidden">
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
+              <Link 
+                to="/search" 
+                className="text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('header.knowOurSitters')}
+              </Link>
               {user ? (
                 <>
                   <Link 
@@ -88,13 +114,6 @@ export const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('header.dashboard')}
-                  </Link>
-                  <Link 
-                    to="/search" 
-                    className="text-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('header.knowOurSitters')}
                   </Link>
                   <Link 
                     to="/book-now" 
@@ -121,19 +140,12 @@ export const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/auth" 
-                    className="text-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('header.login')}
-                  </Link>
                   <div className="pt-2">
                     <LanguageSwitcher />
                   </div>
-                  <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
-                    <Link to="/auth?mode=signup" onClick={() => setIsMenuOpen(false)}>
-                      {t('header.signUpAsSitter')}
+                  <Button asChild variant="outline">
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      {t('header.enterRegister')}
                     </Link>
                   </Button>
                 </>

@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Heart, Shield, Clock, Star, ArrowRight, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-image.jpg";
 
 export const LandingPage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleFindSitter = () => {
@@ -33,12 +35,11 @@ export const LandingPage = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  Your trusted sitter in{" "}
-                  <span className="text-gradient">3 minutes</span>
+                  {t('landing.trustedSitterIn')} {" "}
+                  <span className="text-gradient">{t('landing.threeMinutes')}</span>
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed">
-                  Connect with verified pet and house sitters in Portugal's Silver Coast. 
-                  Safe, transparent, and reliable care for your beloved pets and home.
+                  {t('landing.connectWithVerified')}
                 </p>
               </div>
               
@@ -48,7 +49,7 @@ export const LandingPage = () => {
                   className="bg-ocean-gradient text-white hover:opacity-90 text-lg px-8 py-4"
                   onClick={handleBookNow}
                 >
-                  Book Now
+                  {t('landing.bookNow')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
@@ -57,11 +58,11 @@ export const LandingPage = () => {
                   className="text-lg px-8 py-4"
                   onClick={handleFindSitter}
                 >
-                  Know Our Sitters
+                  {t('landing.knowOurSitters')}
                 </Button>
                 {!user && (
                   <Button variant="outline" size="lg" asChild className="text-lg px-8 py-4">
-                    <Link to="/become-sitter">Become a Sitter</Link>
+                    <Link to="/become-sitter">{t('landing.becomeASitter')}</Link>
                   </Button>
                 )}
               </div>
@@ -69,15 +70,15 @@ export const LandingPage = () => {
               <div className="flex items-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>Verified sitters</span>
+                  <span>{t('landing.verifiedSitters')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>Secure payments</span>
+                  <span>{t('landing.securePayments')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>24/7 support</span>
+                  <span>{t('landing.support247')}</span>
                 </div>
               </div>
             </div>

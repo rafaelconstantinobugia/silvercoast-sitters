@@ -29,17 +29,23 @@ const detectLanguage = (): Language => {
 
 const translations = {
   en: {
-    // Header
-    'header.dashboard': 'Dashboard',
-    'header.knowOurSitters': 'Know Our Sitters',
-    'header.bookNow': 'Book Now',
-    'header.admin': 'Admin',
-    'header.signOut': 'Sign Out',
-    'header.login': 'Login',
-    'header.signUpAsSitter': 'Sign Up as Sitter',
-    'header.enterRegister': 'Enter/Register',
-    'header.profile': 'Profile',
-    'header.myBookings': 'My Bookings',
+    header: {
+      dashboard: 'Dashboard',
+      myBookings: 'My Bookings',
+      sitterDashboard: 'Sitter Dashboard',
+      knowOurSitters: 'Know Our Sitters',
+      bookNow: 'Book Now',
+      admin: 'Admin',
+      signOut: 'Sign Out',
+      login: 'Login',
+      signUpAsSitter: 'Sign Up as Sitter',
+      enterRegister: 'Enter/Register',
+      profile: 'Profile',
+      findSitters: 'Find Sitters',
+      becomeASitter: 'Become a Sitter',
+      signIn: 'Sign In',
+      signUp: 'Sign Up',
+    },
     
     // Search
     'search.findPerfectSitter': 'Find Your Perfect Pet Sitter',
@@ -127,6 +133,25 @@ const translations = {
     'common.pending': 'pending',
     'common.approved': 'approved',
     'common.rejected': 'rejected',
+    'common.error': 'An error occurred',
+    'common.locale': 'en-US',
+    
+    // Sitter Dashboard
+    'sitter.dashboard': 'Sitter Dashboard',
+    'sitter.manageBookings': 'Manage your bookings',
+    'sitter.newRequests': 'New Requests',
+    'sitter.upcoming': 'Upcoming',
+    'sitter.completed': 'Completed',
+    'sitter.pastBookings': 'Past Bookings',
+    'sitter.noBookings': 'No bookings yet',
+    'sitter.waitingForRequests': 'Waiting for booking requests',
+    'sitter.editProfile': 'Edit Profile',
+    'sitter.bookingAccepted': 'Booking accepted successfully',
+    'sitter.bookingDeclined': 'Booking declined',
+    'sitter.errorAcceptingBooking': 'Error accepting booking',
+    'sitter.errorDecliningBooking': 'Error declining booking',
+    'sitter.errorFetchingBookings': 'Error loading bookings',
+    'sitter.notRegistered': 'You are not registered as a sitter',
   },
   pt: {
     // Header
@@ -227,6 +252,25 @@ const translations = {
     'common.pending': 'pendente',
     'common.approved': 'aprovado',
     'common.rejected': 'rejeitado',
+    'common.error': 'Ocorreu um erro',
+    'common.locale': 'pt-PT',
+    
+    // Sitter Dashboard
+    'sitter.dashboard': 'Painel do Sitter',
+    'sitter.manageBookings': 'Gerir as suas reservas',
+    'sitter.newRequests': 'Novos Pedidos',
+    'sitter.upcoming': 'Próximas',
+    'sitter.completed': 'Concluídas',
+    'sitter.pastBookings': 'Reservas Anteriores',
+    'sitter.noBookings': 'Sem reservas',
+    'sitter.waitingForRequests': 'À espera de pedidos',
+    'sitter.editProfile': 'Editar Perfil',
+    'sitter.bookingAccepted': 'Reserva aceite com sucesso',
+    'sitter.bookingDeclined': 'Reserva recusada',
+    'sitter.errorAcceptingBooking': 'Erro ao aceitar reserva',
+    'sitter.errorDecliningBooking': 'Erro ao recusar reserva',
+    'sitter.errorFetchingBookings': 'Erro ao carregar reservas',
+    'sitter.notRegistered': 'Não está registado como sitter',
   },
   es: {
     // Header

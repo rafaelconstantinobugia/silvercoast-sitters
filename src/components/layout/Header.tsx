@@ -59,14 +59,21 @@ export const Header = () => {
                 {isMenuOpen && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50">
                     <div className="py-2">
-                      <Link 
-                        to="/dashboard" 
-                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {t('header.myBookings')}
-                      </Link>
-                      <button
+                  <Link 
+                    to="/dashboard" 
+                    className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('header.myBookings')}
+                  </Link>
+                  <Link 
+                    to="/sitter-dashboard" 
+                    className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('header.sitterDashboard')}
+                  </Link>
+                  <button
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors"
                       >

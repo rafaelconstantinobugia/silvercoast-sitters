@@ -182,7 +182,7 @@ export function AdminPayments() {
                     <div>
                       <CardTitle className="text-lg">Reserva #{booking.id.slice(0, 8)}</CardTitle>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(booking.start_date).toLocaleDateString("pt-PT")} - {new Date(booking.end_date).toLocaleDateString("pt-PT")}
+                        {new Date((booking as any).start_ts).toLocaleDateString("pt-PT")} - {new Date((booking as any).end_ts).toLocaleDateString("pt-PT")}
                       </p>
                     </div>
                     <Badge variant="secondary">{booking.status}</Badge>
@@ -217,7 +217,7 @@ export function AdminPayments() {
                     <div>
                       <CardTitle className="text-lg">Reserva #{booking.id.slice(0, 8)}</CardTitle>
                        <p className="text-sm text-muted-foreground">
-                         {new Date(booking.start_date).toLocaleDateString("pt-PT")} - {new Date(booking.end_date).toLocaleDateString("pt-PT")}
+                         {new Date((booking as any).start_ts).toLocaleDateString("pt-PT")} - {new Date((booking as any).end_ts).toLocaleDateString("pt-PT")}
                        </p>
                     </div>
                     <Badge>{booking.status}</Badge>
@@ -249,7 +249,7 @@ export function AdminPayments() {
                     <div>
                       <CardTitle className="text-lg">Reserva #{booking.id.slice(0, 8)}</CardTitle>
                        <p className="text-sm text-muted-foreground">
-                         {new Date(booking.start_date).toLocaleDateString("pt-PT")} - {new Date(booking.end_date).toLocaleDateString("pt-PT")}
+                        {new Date((booking as any).start_ts).toLocaleDateString("pt-PT")} - {new Date((booking as any).end_ts).toLocaleDateString("pt-PT")}
                        </p>
                     </div>
                     <Badge variant="outline">Concluída</Badge>

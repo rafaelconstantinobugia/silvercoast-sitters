@@ -67,152 +67,124 @@ export type Database = {
       }
       applicants: {
         Row: {
-          admin_notes: string | null
+          about: string | null
+          city: string | null
           created_at: string
-          description: string | null
           email: string | null
           emergency_contact: string | null
-          experience_years: string | null
-          first_name: string
+          full_name: string | null
           has_insurance: boolean | null
           id: string
-          last_name: string
-          location: string | null
+          meta: Json
           phone: string | null
+          photo_url: string | null
           price_per_day: number | null
-          services_offered: string[] | null
-          status: string | null
-          updated_at: string
+          status: string
           user_id: string | null
         }
         Insert: {
-          admin_notes?: string | null
+          about?: string | null
+          city?: string | null
           created_at?: string
-          description?: string | null
           email?: string | null
           emergency_contact?: string | null
-          experience_years?: string | null
-          first_name: string
+          full_name?: string | null
           has_insurance?: boolean | null
           id?: string
-          last_name: string
-          location?: string | null
+          meta?: Json
           phone?: string | null
+          photo_url?: string | null
           price_per_day?: number | null
-          services_offered?: string[] | null
-          status?: string | null
-          updated_at?: string
+          status?: string
           user_id?: string | null
         }
         Update: {
-          admin_notes?: string | null
+          about?: string | null
+          city?: string | null
           created_at?: string
-          description?: string | null
           email?: string | null
           emergency_contact?: string | null
-          experience_years?: string | null
-          first_name?: string
+          full_name?: string | null
           has_insurance?: boolean | null
           id?: string
-          last_name?: string
-          location?: string | null
+          meta?: Json
           phone?: string | null
+          photo_url?: string | null
           price_per_day?: number | null
-          services_offered?: string[] | null
-          status?: string | null
-          updated_at?: string
+          status?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "applicants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bookings: {
         Row: {
           accepted_at: string | null
-          created_at: string
-          currency: string
-          declined_at: string | null
-          end_date: string
-          fee_cents: number
-          house_details: Json | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
           id: string
           notes: string | null
-          owner_id: string
-          paid_at: string | null
-          payment_intent_id: string | null
-          payment_status: Database["public"]["Enums"]["payment_status"] | null
-          period: unknown | null
-          pet_details: Json | null
-          service_id: string
-          sitter_id: string | null
-          start_date: string
-          status: Database["public"]["Enums"]["booking_status"] | null
-          stripe_payment_intent_id: string | null
-          stripe_session_id: string | null
-          subtotal_cents: number
-          total_cents: number | null
-          total_price: number
-          updated_at: string
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
         }
         Insert: {
           accepted_at?: string | null
-          created_at?: string
-          currency?: string
-          declined_at?: string | null
-          end_date: string
-          fee_cents?: number
-          house_details?: Json | null
+          address_text?: string | null
+          amount_cents?: number | null
+          cancelled_reason?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents?: number | null
           id?: string
           notes?: string | null
-          owner_id: string
-          paid_at?: string | null
-          payment_intent_id?: string | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          period?: unknown | null
-          pet_details?: Json | null
-          service_id: string
-          sitter_id?: string | null
-          start_date: string
-          status?: Database["public"]["Enums"]["booking_status"] | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          subtotal_cents?: number
-          total_cents?: number | null
-          total_price: number
-          updated_at?: string
+          pet_type?: string | null
+          service_id?: string | null
+          sitter_id: string
+          start_time: string
+          status?: Database["public"]["Enums"]["booking_status"]
         }
         Update: {
           accepted_at?: string | null
-          created_at?: string
-          currency?: string
-          declined_at?: string | null
-          end_date?: string
-          fee_cents?: number
-          house_details?: Json | null
+          address_text?: string | null
+          amount_cents?: number | null
+          cancelled_reason?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_id?: string
+          end_time?: string
+          hourly_rate_cents?: number | null
           id?: string
           notes?: string | null
-          owner_id?: string
-          paid_at?: string | null
-          payment_intent_id?: string | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          period?: unknown | null
-          pet_details?: Json | null
-          service_id?: string
-          sitter_id?: string | null
-          start_date?: string
-          status?: Database["public"]["Enums"]["booking_status"] | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          subtotal_cents?: number
-          total_cents?: number | null
-          total_price?: number
-          updated_at?: string
+          pet_type?: string | null
+          service_id?: string | null
+          sitter_id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["booking_status"]
         }
         Relationships: [
           {
-            foreignKeyName: "bookings_owner_id_fkey"
-            columns: ["owner_id"]
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -226,7 +198,7 @@ export type Database = {
             foreignKeyName: "bookings_sitter_id_fkey"
             columns: ["sitter_id"]
             isOneToOne: false
-            referencedRelation: "sitters"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -252,6 +224,77 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_requests: {
+        Row: {
+          admin_note: string | null
+          amount_cents: number
+          created_at: string | null
+          id: string
+          processed_at: string | null
+          sitter_id: string
+          status: Database["public"]["Enums"]["payout_status"]
+        }
+        Insert: {
+          admin_note?: string | null
+          amount_cents: number
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          sitter_id: string
+          status?: Database["public"]["Enums"]["payout_status"]
+        }
+        Update: {
+          admin_note?: string | null
+          amount_cents?: number
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          sitter_id?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           booking_id: string
@@ -274,88 +317,188 @@ export type Database = {
           id?: string
           rating?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: true
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       services: {
         Row: {
-          active: boolean | null
           base_price: number
           created_at: string
           description: string | null
           duration_hours: number
           id: string
+          is_active: boolean
           name: string
-          service_type: Database["public"]["Enums"]["service_type"]
+          service_type: string
           updated_at: string
         }
         Insert: {
-          active?: boolean | null
-          base_price: number
-          created_at?: string
-          description?: string | null
-          duration_hours: number
-          id?: string
-          name: string
-          service_type: Database["public"]["Enums"]["service_type"]
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean | null
           base_price?: number
           created_at?: string
           description?: string | null
           duration_hours?: number
           id?: string
+          is_active?: boolean
+          name: string
+          service_type?: string
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          created_at?: string
+          description?: string | null
+          duration_hours?: number
+          id?: string
+          is_active?: boolean
           name?: string
-          service_type?: Database["public"]["Enums"]["service_type"]
+          service_type?: string
           updated_at?: string
         }
         Relationships: []
       }
-      sitter_services: {
+      sitter_details: {
         Row: {
-          active: boolean
-          available: boolean | null
-          created_at: string | null
-          custom_price: number
-          discount_percent: number
-          hourly_rate_cents: number
-          id: string
-          service_id: string
+          accepts_home_visits: boolean | null
+          accepts_overnight: boolean | null
+          address_text: string | null
+          base_hourly_rate_cents: number
+          display_name: string | null
+          pet_types: string[] | null
+          service_radius_km: number | null
           sitter_id: string
           updated_at: string | null
         }
         Insert: {
-          active?: boolean
-          available?: boolean | null
-          created_at?: string | null
-          custom_price: number
-          discount_percent?: number
-          hourly_rate_cents?: number
-          id?: string
-          service_id: string
+          accepts_home_visits?: boolean | null
+          accepts_overnight?: boolean | null
+          address_text?: string | null
+          base_hourly_rate_cents?: number
+          display_name?: string | null
+          pet_types?: string[] | null
+          service_radius_km?: number | null
           sitter_id: string
           updated_at?: string | null
         }
         Update: {
-          active?: boolean
-          available?: boolean | null
+          accepts_home_visits?: boolean | null
+          accepts_overnight?: boolean | null
+          address_text?: string | null
+          base_hourly_rate_cents?: number
+          display_name?: string | null
+          pet_types?: string[] | null
+          service_radius_km?: number | null
+          sitter_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_details_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitter_photos: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          sitter_id: string
+          url: string
+        }
+        Insert: {
           created_at?: string | null
-          custom_price?: number
-          discount_percent?: number
-          hourly_rate_cents?: number
+          id?: string
+          is_public?: boolean | null
+          sitter_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          sitter_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_photos_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitter_public: {
+        Row: {
+          avatar_url: string | null
+          base_hourly_rate_cents: number | null
+          bio_short: string | null
+          city: string | null
+          is_listed: boolean | null
+          is_verified: boolean | null
+          name: string
+          pet_types: string[] | null
+          sitter_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          is_listed?: boolean | null
+          is_verified?: boolean | null
+          name: string
+          pet_types?: string[] | null
+          sitter_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          is_listed?: boolean | null
+          is_verified?: boolean | null
+          name?: string
+          pet_types?: string[] | null
+          sitter_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_public_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitter_services: {
+        Row: {
+          created_at: string
+          custom_price: number | null
+          id: string
+          service_id: string
+          sitter_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_price?: number | null
+          id?: string
+          service_id: string
+          sitter_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_price?: number | null
           id?: string
           service_id?: string
           sitter_id?: string
-          updated_at?: string | null
         }
         Relationships: [
           {
@@ -369,7 +512,7 @@ export type Database = {
             foreignKeyName: "sitter_services_sitter_id_fkey"
             columns: ["sitter_id"]
             isOneToOne: false
-            referencedRelation: "sitters"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -392,70 +535,6 @@ export type Database = {
           id?: string
           service_id?: string
           sitter_id?: string
-        }
-        Relationships: []
-      }
-      sitters: {
-        Row: {
-          available: boolean | null
-          average_rating: number | null
-          created_at: string
-          description: string | null
-          email: string | null
-          experience_years: number | null
-          id: string
-          location: string | null
-          name: string | null
-          phone: string | null
-          photo_url: string | null
-          price_per_day: number | null
-          response_time: string | null
-          services_offered: Database["public"]["Enums"]["service_type"][] | null
-          updated_at: string
-          user_id: string | null
-          verified: boolean | null
-        }
-        Insert: {
-          available?: boolean | null
-          average_rating?: number | null
-          created_at?: string
-          description?: string | null
-          email?: string | null
-          experience_years?: number | null
-          id?: string
-          location?: string | null
-          name?: string | null
-          phone?: string | null
-          photo_url?: string | null
-          price_per_day?: number | null
-          response_time?: string | null
-          services_offered?:
-            | Database["public"]["Enums"]["service_type"][]
-            | null
-          updated_at?: string
-          user_id?: string | null
-          verified?: boolean | null
-        }
-        Update: {
-          available?: boolean | null
-          average_rating?: number | null
-          created_at?: string
-          description?: string | null
-          email?: string | null
-          experience_years?: number | null
-          id?: string
-          location?: string | null
-          name?: string | null
-          phone?: string | null
-          photo_url?: string | null
-          price_per_day?: number | null
-          response_time?: string | null
-          services_offered?:
-            | Database["public"]["Enums"]["service_type"][]
-            | null
-          updated_at?: string
-          user_id?: string | null
-          verified?: boolean | null
         }
         Relationships: []
       }
@@ -518,12 +597,177 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      sitters: {
+        Row: {
+          avatar_url: string | null
+          base_hourly_rate_cents: number | null
+          bio_short: string | null
+          city: string | null
+          name: string | null
+          pet_types: string[] | null
+          sitter_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          name?: string | null
+          pet_types?: string[] | null
+          sitter_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          name?: string | null
+          pet_types?: string[] | null
+          sitter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_public_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitters_public_view: {
+        Row: {
+          avatar_url: string | null
+          base_hourly_rate_cents: number | null
+          bio_short: string | null
+          city: string | null
+          is_verified: boolean | null
+          name: string | null
+          pet_types: string[] | null
+          sitter_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          is_verified?: boolean | null
+          name?: string | null
+          pet_types?: string[] | null
+          sitter_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          base_hourly_rate_cents?: number | null
+          bio_short?: string | null
+          city?: string | null
+          is_verified?: boolean | null
+          name?: string | null
+          pet_types?: string[] | null
+          sitter_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_public_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      accept_booking: {
+        Args: { p_booking_id: string }
+        Returns: {
+          accepted_at: string | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
+          id: string
+          notes: string | null
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }
+      }
       calculate_booking_price: {
         Args: { end_date: string; service_id: string; start_date: string }
         Returns: number
+      }
+      cancel_booking_by_customer: {
+        Args: { p_booking_id: string; p_reason?: string }
+        Returns: {
+          accepted_at: string | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
+          id: string
+          notes: string | null
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }
+      }
+      cancel_booking_by_sitter: {
+        Args: { p_booking_id: string; p_reason?: string }
+        Returns: {
+          accepted_at: string | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
+          id: string
+          notes: string | null
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }
+      }
+      complete_booking: {
+        Args: { p_booking_id: string }
+        Returns: {
+          accepted_at: string | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
+          id: string
+          notes: string | null
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }
       }
       gbt_bit_compress: {
         Args: { "": unknown }
@@ -796,6 +1040,103 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: {
+        Args: { p_uid?: string }
+        Returns: boolean
+      }
+      request_booking: {
+        Args: {
+          p_address: string
+          p_end: string
+          p_notes?: string
+          p_pet_type?: string
+          p_service_id: string
+          p_sitter_id: string
+          p_start: string
+        }
+        Returns: {
+          accepted_at: string | null
+          address_text: string | null
+          amount_cents: number | null
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_id: string
+          end_time: string
+          hourly_rate_cents: number | null
+          id: string
+          notes: string | null
+          pet_type: string | null
+          service_id: string | null
+          sitter_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }
+      }
+      request_payout: {
+        Args: { p_amount_cents: number }
+        Returns: {
+          admin_note: string | null
+          amount_cents: number
+          created_at: string | null
+          id: string
+          processed_at: string | null
+          sitter_id: string
+          status: Database["public"]["Enums"]["payout_status"]
+        }
+      }
+      search_sitters: {
+        Args: { p_city: string; p_pet_type?: string; p_service_name?: string }
+        Returns: {
+          avatar_url: string | null
+          base_hourly_rate_cents: number | null
+          bio_short: string | null
+          city: string | null
+          is_listed: boolean | null
+          is_verified: boolean | null
+          name: string
+          pet_types: string[] | null
+          sitter_id: string
+          updated_at: string | null
+        }[]
+      }
+      sitter_balance: {
+        Args: { p_sitter?: string }
+        Returns: {
+          available_cents: number
+          paid_cents: number
+          requested_cents: number
+          total_cents: number
+        }[]
+      }
+      submit_sitter_application: {
+        Args: {
+          p_city?: string
+          p_email?: string
+          p_emergency_contact?: string
+          p_full_name?: string
+          p_has_insurance?: boolean
+          p_meta?: Json
+          p_phone?: string
+          p_photo_url?: string
+        }
+        Returns: {
+          about: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          full_name: string | null
+          has_insurance: boolean | null
+          id: string
+          meta: Json
+          phone: string | null
+          photo_url: string | null
+          price_per_day: number | null
+          status: string
+          user_id: string | null
+        }
+      }
       validate_notification_request: {
         Args: { secret_header: string }
         Returns: boolean
@@ -811,6 +1152,7 @@ export type Database = {
         | "cancelled"
         | "assigned"
       payment_status: "pending" | "paid" | "failed" | "refunded"
+      payout_status: "requested" | "approved" | "paid" | "rejected"
       service_type: "pet" | "house" | "combined"
       user_type: "owner" | "sitter" | "admin"
     }
@@ -950,6 +1292,7 @@ export const Constants = {
         "assigned",
       ],
       payment_status: ["pending", "paid", "failed", "refunded"],
+      payout_status: ["requested", "approved", "paid", "rejected"],
       service_type: ["pet", "house", "combined"],
       user_type: ["owner", "sitter", "admin"],
     },

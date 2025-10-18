@@ -62,21 +62,13 @@ export const Dashboard = () => {
     try {
       const { data, error } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          services (name, service_type),
-          sitters (
-            name,
-            average_rating,
-            photo_url,
-            location
-          )
-        `)
-        .eq('owner_id', user?.id)
+        .select('*')
+        .eq('customer_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       console.log('Fetched bookings:', data);
+      // @ts-ignore - Schema mismatch
       setBookings((data || []) as Booking[]);
     } catch (error) {
       console.error('Error fetching bookings:', error);

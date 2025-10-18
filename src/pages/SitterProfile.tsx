@@ -24,7 +24,7 @@ export const SitterProfile = () => {
       
       try {
         // Fetch basic sitter info (excludes sensitive data like email and phone)
-        const { data: sitterData, error: sitterError } = await supabase
+        const { data: sitterData, error: sitterError } = await (supabase as any)
           .from('sitters')
           .select('id, name, location, photo_url, average_rating, verified, available, price_per_day, description, experience_years, response_time, services_offered')
           .eq('id', id)
@@ -47,7 +47,7 @@ export const SitterProfile = () => {
         }
 
         // Fetch services pricing
-        const { data: servicesData, error: servicesError } = await supabase
+        const { data: servicesData, error: servicesError } = await (supabase as any)
           .from('services')
           .select('*')
           .eq('active', true);

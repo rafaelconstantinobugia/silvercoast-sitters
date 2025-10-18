@@ -39,8 +39,7 @@ export function OwnerInvoices() {
 
   const fetchBookings = async () => {
     try {
-      // @ts-ignore - Supabase types not yet regenerated after migration
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('bookings_new')
         .select('*')
         .eq('owner_id', user?.id)

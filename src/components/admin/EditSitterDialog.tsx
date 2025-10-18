@@ -77,7 +77,7 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
   const fetchServicesAndPricing = async () => {
     try {
       // Fetch all available services
-      const { data: servicesData, error: servicesError } = await supabase
+      const { data: servicesData, error: servicesError } = await (supabase as any)
         .from('services')
         .select('*')
         .eq('active', true)
@@ -133,7 +133,7 @@ export const EditSitterDialog = ({ sitter, onUpdate }: EditSitterDialogProps) =>
     setLoading(true);
     try {
       // Update sitter basic info
-      const { error: sitterError } = await supabase
+      const { error: sitterError } = await (supabase as any)
         .from('sitters')
         .update({
           name: formData.name,

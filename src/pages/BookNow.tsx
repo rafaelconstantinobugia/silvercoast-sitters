@@ -75,7 +75,7 @@ export const BookNow = () => {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('services')
         .select('*')
         .eq('active', true)

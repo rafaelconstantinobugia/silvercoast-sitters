@@ -48,7 +48,7 @@ export const BecomeASitter = () => {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('services')
         .select('id, name, service_type')
         .eq('active', true)

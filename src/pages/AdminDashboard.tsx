@@ -102,26 +102,18 @@ export const AdminDashboard = () => {
     }
 
     try {
-      // Check if user is admin by email or user_type
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('user_type, email')
-        .eq('id', user.id)
-        .single();
+      // SECURITY: Check if user has admin role in user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
 
-      const isAdminByEmail = user.email === 'r3al4f@gmail.com';
-      const isAdminByType = userData?.user_type === 'admin';
+      if (roleError) throw roleError;
 
-      if (isAdminByEmail || isAdminByType) {
+      if (roleData) {
         setIsAdmin(true);
-        
-        // Update user type to admin if accessed by admin email
-        if (isAdminByEmail && userData?.user_type !== 'admin') {
-          await supabase
-            .from('users')
-            .update({ user_type: 'admin' })
-            .eq('id', user.id);
-        }
         
         await Promise.all([
           fetchApplicants(),
@@ -265,7 +257,7 @@ export const AdminDashboard = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('sitters')
         .delete()
         .eq('id', sitterId);

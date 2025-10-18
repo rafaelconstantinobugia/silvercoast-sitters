@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ReviewsList } from '@/components/reviews/ReviewsList';
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";

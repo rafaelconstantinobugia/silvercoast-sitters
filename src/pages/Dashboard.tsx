@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/layout/Header";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ReviewForm } from '@/components/reviews/ReviewForm';
+import { PetManager } from '@/components/pets/PetManager';
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, MapPin, Plus, Star, Clock, CheckCircle, AlertCircle } from "lucide-react";

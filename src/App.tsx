@@ -15,6 +15,7 @@ import { BecomeASitterPublic } from "./pages/BecomeASitterPublic";
 import { BookNow } from "./pages/BookNow";
 import { BookingCheckout } from "./pages/BookingCheckout";
 import { BookingSuccess } from "./pages/BookingSuccess";
+import BookingDetail from "./pages/BookingDetail";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { LocationPage } from "./pages/LocationPage";
 import NotFound from "./pages/NotFound";
@@ -40,8 +41,9 @@ const App = () => (
             <Route path="/sitter/:id" element={<SitterProfile />} />
             <Route path="/become-sitter" element={<BecomeASitterPublic />} />
             <Route path="/become-sitter-auth" element={<BecomeASitter />} />
-            <Route path="/booking/:sitterId" element={<BookingCheckout />} />
-            <Route path="/booking-success" element={<BookingSuccess />} />
+            <Route path="/booking/new/:sitterId" element={<BookingCheckout />} />
+            <Route path="/booking/success" element={<BookingSuccess />} />
+            <Route path="/booking/:id" element={<BookingDetail />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin-payments" element={<AdminPayments />} />
             <Route path="/my-invoices" element={<OwnerInvoices />} />

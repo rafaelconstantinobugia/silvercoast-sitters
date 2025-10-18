@@ -84,5 +84,11 @@ verify_jwt = true
 [functions.admin-complete-booking]
 verify_jwt = true
 
+[functions.owner-upload-proof]
+verify_jwt = true
+
+[functions.admin-mark-payout-paid]
+verify_jwt = true
+
 [functions.post-message]
 verify_jwt = true

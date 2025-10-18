@@ -40,7 +40,7 @@ export function OwnerInvoices() {
   const fetchBookings = async () => {
     try {
       const { data, error } = await (supabase as any)
-        .from('bookings_new')
+        .from('bookings')
         .select('*')
         .eq('owner_id', user?.id)
         .in('status', ['confirmed', 'in_progress', 'completed'])
@@ -75,9 +75,8 @@ export function OwnerInvoices() {
         .getPublicUrl(filePath);
 
       // Store proof URL in booking notes or separate payment_proofs table
-      // @ts-ignore - Supabase types not yet regenerated after migration
       const { error: updateError } = await (supabase as any)
-        .from("bookings_new")
+        .from("bookings")
         .update({ 
           notes: `Comprovativo de pagamento: ${publicUrl}`
         })

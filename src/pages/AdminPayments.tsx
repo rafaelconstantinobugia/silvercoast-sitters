@@ -67,19 +67,19 @@ export function AdminPayments() {
 
   const loadBookings = async () => {
     try {
-      const { data: confirmed } = await supabase
+      const { data: confirmed } = await (supabase as any)
         .from("bookings")
         .select("*")
         .eq("status", "confirmed")
         .order("created_at", { ascending: false });
 
-      const { data: inProgress } = await supabase
+      const { data: inProgress } = await (supabase as any)
         .from("bookings")
         .select("*")
         .eq("status", "in_progress")
         .order("created_at", { ascending: false });
 
-      const { data: completed } = await supabase
+      const { data: completed } = await (supabase as any)
         .from("bookings")
         .select("*")
         .eq("status", "completed")
@@ -97,7 +97,7 @@ export function AdminPayments() {
 
   const markPaymentReceived = async (bookingId: string, amountCents: number) => {
     try {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from("bookings")
         .update({ status: "in_progress" })
         .eq("id", bookingId);
@@ -114,7 +114,7 @@ export function AdminPayments() {
 
   const completeBooking = async (bookingId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("bookings")
         .update({ 
           status: "completed",

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateUUID, validateDateRange, validateUUIDArray, validateStringLength } from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,12 +32,52 @@ serve(async (req) => {
 
     const { listing_id, start_ts, end_ts, pet_ids, notes } = await req.json();
 
-    // Validate inputs
+    // Validate required fields
     if (!listing_id || !start_ts || !end_ts) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Validate listing_id format
+    const listingValidation = validateUUID(listing_id, 'listing_id');
+    if (!listingValidation.success) {
+      return new Response(JSON.stringify({ error: listingValidation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate date range
+    const dateValidation = validateDateRange(start_ts, end_ts);
+    if (!dateValidation.success) {
+      return new Response(JSON.stringify({ error: dateValidation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate pet_ids if provided
+    if (pet_ids) {
+      const petIdsValidation = validateUUIDArray(pet_ids, 'pet_ids');
+      if (!petIdsValidation.success) {
+        return new Response(JSON.stringify({ error: petIdsValidation.error }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Validate notes length if provided
+    if (notes) {
+      const notesValidation = validateStringLength(notes, 'notes', 1000);
+      if (!notesValidation.success) {
+        return new Response(JSON.stringify({ error: notesValidation.error }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Get listing details

@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { corsHeaders } from '../_shared/cors.ts';
+import { validateUUID, validateEnum, validateStringLength } from '../_shared/validation.ts';
 
 console.log('Admin mark payout paid function started');
 
@@ -47,6 +48,32 @@ Deno.serve(async (req) => {
 
     if (!payout_id) {
       throw new Error('Missing required field: payout_id');
+    }
+
+    // Validate payout_id format
+    const payoutValidation = validateUUID(payout_id, 'payout_id');
+    if (!payoutValidation.success) {
+      throw new Error(payoutValidation.error);
+    }
+
+    // Validate payment_method if provided
+    if (payment_method) {
+      const methodValidation = validateEnum(
+        payment_method,
+        'payment_method',
+        ['bank_transfer', 'paypal', 'stripe', 'cash', 'other']
+      );
+      if (!methodValidation.success) {
+        throw new Error(methodValidation.error);
+      }
+    }
+
+    // Validate transaction_reference length if provided
+    if (transaction_reference) {
+      const refValidation = validateStringLength(transaction_reference, 'transaction_reference', 255);
+      if (!refValidation.success) {
+        throw new Error(refValidation.error);
+      }
     }
 
     console.log('Processing payout marking:', { payout_id, admin_id: user.id });

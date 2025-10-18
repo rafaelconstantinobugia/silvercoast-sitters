@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { corsHeaders } from '../_shared/cors.ts';
+import { validateUUID, validateURL } from '../_shared/validation.ts';
 
 console.log('Owner upload payment proof function started');
 
@@ -33,6 +34,18 @@ Deno.serve(async (req) => {
 
     if (!booking_id || !proof_url) {
       throw new Error('Missing required fields: booking_id, proof_url');
+    }
+
+    // Validate booking_id format
+    const bookingValidation = validateUUID(booking_id, 'booking_id');
+    if (!bookingValidation.success) {
+      throw new Error(bookingValidation.error);
+    }
+
+    // Validate proof_url format
+    const urlValidation = validateURL(proof_url, 'proof_url');
+    if (!urlValidation.success) {
+      throw new Error(urlValidation.error);
     }
 
     console.log('Processing payment proof upload:', { booking_id, user_id: user.id });

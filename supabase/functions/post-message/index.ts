@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateUUID, validateStringLength } from "../_shared/validation.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,6 +33,24 @@ serve(async (req) => {
 
     if (!booking_id || !body || body.trim().length === 0) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate booking_id format
+    const bookingValidation = validateUUID(booking_id, 'booking_id');
+    if (!bookingValidation.success) {
+      return new Response(JSON.stringify({ error: bookingValidation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate message length
+    const bodyValidation = validateStringLength(body.trim(), 'message', 2000);
+    if (!bodyValidation.success) {
+      return new Response(JSON.stringify({ error: bodyValidation.error }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

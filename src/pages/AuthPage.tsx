@@ -33,7 +33,7 @@ export const AuthPage = () => {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      toast.error("Please enter your email address");
+      toast.error(t('auth.enterEmailError'));
       return;
     }
     
@@ -46,11 +46,11 @@ export const AuthPage = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success("Password reset email sent! Check your inbox.");
+        toast.success(t('auth.resetEmailSent'));
         setIsForgotPassword(false);
       }
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error(t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -68,34 +68,34 @@ export const AuthPage = () => {
 
       if (isSignUp) {
         if (!name.trim()) {
-          toast.error("Please enter your name");
+          toast.error(t('auth.enterNameError'));
           return;
         }
         const { error } = await signUp(email, password, name);
         if (error) {
           if (error.message.includes("already registered")) {
-            toast.error("This email is already registered. Try signing in instead.");
+            toast.error(t('auth.emailAlreadyRegistered'));
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success("Account created! Please check your email to verify your account.");
+          toast.success(t('auth.accountCreated'));
         }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes("Invalid login")) {
-            toast.error("Invalid email or password. Please try again.");
+            toast.error(t('auth.invalidCredentials'));
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success("Welcome back!");
+          toast.success(t('auth.welcomeBack'));
           navigate('/dashboard');
         }
       }
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error(t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -117,11 +117,11 @@ export const AuthPage = () => {
         <Card className="shadow-large border-0">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
-              {isForgotPassword ? "Reset Password" : 
+              {isForgotPassword ? t('auth.resetPassword') : 
                isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
             </CardTitle>
             <CardDescription>
-              {isForgotPassword ? "Enter your email to receive reset instructions" :
+              {isForgotPassword ? t('auth.enterEmailReset') :
                isSignUp ? t('auth.joinCommunity') : t('auth.signInToAccount')}
             </CardDescription>
           </CardHeader>
@@ -177,7 +177,7 @@ export const AuthPage = () => {
                 {loading ? (
                   <LoadingSpinner size="sm" className="mr-2" />
                 ) : null}
-                {isForgotPassword ? "Send Reset Email" :
+                {isForgotPassword ? t('auth.sendResetEmail') :
                  isSignUp ? t('auth.createAccount') : t('auth.signIn')}
               </Button>
             </form>
@@ -215,7 +215,7 @@ export const AuthPage = () => {
                   onClick={() => setIsForgotPassword(false)}
                   className="text-primary hover:underline text-sm"
                 >
-                  ← Back to sign in
+                  {t('auth.backToSignIn')}
                 </button>
               </div>
             )}

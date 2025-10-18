@@ -7,6 +7,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { PetManager } from '@/components/pets/PetManager';
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, MapPin, Plus, Star, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ interface Booking {
 
 export const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export const Dashboard = () => {
       setBookings((data || []) as Booking[]);
     } catch (error) {
       console.error('Error fetching bookings:', error);
-      toast.error('Failed to load bookings');
+      toast.error(t('dashboard.failedLoadBookings'));
     } finally {
       setLoading(false);
     }
@@ -83,15 +85,15 @@ export const Dashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="badge-pending">Pending Confirmation</Badge>;
+        return <Badge variant="secondary" className="badge-pending">{t('dashboard.pendingConfirmation')}</Badge>;
       case 'confirmed':
-        return <Badge variant="default" className="badge-verified">Confirmed</Badge>;
+        return <Badge variant="default" className="badge-verified">{t('common.approved')}</Badge>;
       case 'accepted':
-        return <Badge variant="default" className="badge-verified">Accepted</Badge>;
+        return <Badge variant="default" className="badge-verified">{t('common.approved')}</Badge>;
       case 'completed':
-        return <Badge variant="secondary" className="badge-completed">Completed</Badge>;
+        return <Badge variant="secondary" className="badge-completed">{t('sitter.completed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t('common.rejected')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -106,16 +108,16 @@ export const Dashboard = () => {
 
       if (error) throw error;
       
-      toast.success('Booking cancelled successfully');
+      toast.success(t('dashboard.bookingCancelled'));
       fetchBookings();
     } catch (error) {
       console.error('Error cancelling booking:', error);
-      toast.error('Failed to cancel booking');
+      toast.error(t('dashboard.failedCancelBooking'));
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(t('common.locale'), {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -141,10 +143,10 @@ export const Dashboard = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user?.user_metadata?.name || user?.email?.split('@')[0]}!
+              {t('dashboard.welcomeBack')}, {user?.user_metadata?.name || user?.email?.split('@')[0]}!
             </h1>
             <p className="text-muted-foreground">
-              Manage your bookings and find trusted sitters
+              {t('dashboard.manageBookings')}
             </p>
           </div>
           
@@ -152,13 +154,13 @@ export const Dashboard = () => {
             <Button asChild variant="outline">
               <Link to="/search">
                 <MapPin className="w-4 h-4 mr-2" />
-                Browse Sitters
+                {t('dashboard.browseSitters')}
               </Link>
             </Button>
             <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
               <Link to="/book-now">
                 <Plus className="w-4 h-4 mr-2" />
-                Request New Sitting
+                {t('dashboard.requestNewSitting')}
               </Link>
             </Button>
           </div>
@@ -174,7 +176,7 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{pendingBookings.length}</p>
-                  <p className="text-sm text-muted-foreground">Pending Confirmation</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.pendingConfirmation')}</p>
                 </div>
               </div>
             </CardContent>
@@ -188,7 +190,7 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{upcomingBookings.length}</p>
-                  <p className="text-sm text-muted-foreground">Upcoming Bookings</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.upcomingBookings')}</p>
                 </div>
               </div>
             </CardContent>
@@ -202,7 +204,7 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{pastBookings.length}</p>
-                  <p className="text-sm text-muted-foreground">Completed Bookings</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.completedBookings')}</p>
                 </div>
               </div>
             </CardContent>
@@ -215,14 +217,14 @@ export const Dashboard = () => {
             <Card>
               <CardContent className="py-12 text-center">
                 <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No bookings yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('dashboard.noBookingsYet')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Start by finding a trusted sitter in your area
+                  {t('dashboard.startFindingSitter')}
                 </p>
                 <Button asChild className="bg-ocean-gradient text-white hover:opacity-90">
                   <Link to="/book-now">
                     <Plus className="w-4 h-4 mr-2" />
-                    Book a Sitter
+                    {t('dashboard.bookASitter')}
                   </Link>
                 </Button>
               </CardContent>
@@ -234,7 +236,7 @@ export const Dashboard = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                    <h2 className="text-xl font-semibold">Pending Confirmation</h2>
+                    <h2 className="text-xl font-semibold">{t('dashboard.pendingConfirmation')}</h2>
                     <Badge variant="secondary">{pendingBookings.length}</Badge>
                   </div>
                   <div className="grid gap-4">
@@ -245,6 +247,7 @@ export const Dashboard = () => {
                         onCancel={handleCancelBooking}
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -256,7 +259,7 @@ export const Dashboard = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <h2 className="text-xl font-semibold">Upcoming Bookings</h2>
+                    <h2 className="text-xl font-semibold">{t('dashboard.upcomingBookings')}</h2>
                     <Badge variant="secondary">{upcomingBookings.length}</Badge>
                   </div>
                   <div className="grid gap-4">
@@ -267,6 +270,7 @@ export const Dashboard = () => {
                         onCancel={handleCancelBooking}
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -278,7 +282,7 @@ export const Dashboard = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <h2 className="text-xl font-semibold">Past Bookings</h2>
+                    <h2 className="text-xl font-semibold">{t('dashboard.pastBookings')}</h2>
                     <Badge variant="secondary">{pastBookings.length}</Badge>
                   </div>
                   <div className="grid gap-4">
@@ -289,6 +293,7 @@ export const Dashboard = () => {
                         onCancel={handleCancelBooking}
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -307,12 +312,14 @@ const BookingCard = ({
   booking, 
   onCancel, 
   getStatusBadge, 
-  formatDate 
+  formatDate,
+  t
 }: {
   booking: Booking;
   onCancel: (id: string) => void;
   getStatusBadge: (status: string) => JSX.Element;
   formatDate: (date: string) => string;
+  t: (key: string) => string;
 }) => (
   <Card className="card-hover">
     <CardHeader className="pb-3">
@@ -339,10 +346,10 @@ const BookingCard = ({
         </div>
         
         {booking.sitters && (
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span>{booking.sitters.average_rating.toFixed(1)} rating</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <Star className="w-4 h-4 text-yellow-500" />
+          <span>{booking.sitters.average_rating.toFixed(1)} {t('common.rating')}</span>
+        </div>
         )}
       </div>
 
@@ -358,16 +365,16 @@ const BookingCard = ({
               size="sm"
               onClick={() => onCancel(booking.id)}
             >
-              Cancel Booking
+              {t('dashboard.cancelBooking')}
             </Button>
           )}
           {booking.status === 'completed' && (
             <Button variant="outline" size="sm">
-              Leave Review
+              {t('dashboard.leaveReview')}
             </Button>
           )}
           <Button variant="outline" size="sm">
-            View Details
+            {t('dashboard.viewDetails')}
           </Button>
         </div>
       </div>
@@ -375,7 +382,7 @@ const BookingCard = ({
       {booking.notes && (
         <div className="pt-2 border-t border-border">
           <p className="text-sm text-muted-foreground">
-            <strong>Notes:</strong> {booking.notes}
+            <strong>{t('dashboard.notes')}:</strong> {booking.notes}
           </p>
         </div>
       )}

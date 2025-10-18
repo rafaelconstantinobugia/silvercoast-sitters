@@ -109,9 +109,9 @@ export const LandingPage = () => {
       <section className="py-16 lg:py-24 bg-secondary/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">How it works</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('landing.howItWorks')}</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Book trusted pet and house sitters in just a few simple steps
+              {t('landing.bookTrustedSitters')}
             </p>
           </div>
           
@@ -121,9 +121,9 @@ export const LandingPage = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Shield className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">1. Find a Sitter</h3>
+                <h3 className="text-xl font-semibold mb-4">{t('landing.step1Title')}</h3>
                 <p className="text-muted-foreground">
-                  Browse verified sitters in your area. View profiles, reviews, and availability.
+                  {t('landing.step1Description')}
                 </p>
               </CardContent>
             </Card>
@@ -133,9 +133,9 @@ export const LandingPage = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Clock className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">2. Book</h3>
+                <h3 className="text-xl font-semibold mb-4">{t('landing.step2Title')}</h3>
                 <p className="text-muted-foreground">
-                  Send a booking request with your dates and requirements. Pay securely online.
+                  {t('landing.step2Description')}
                 </p>
               </CardContent>
             </Card>
@@ -145,9 +145,9 @@ export const LandingPage = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Heart className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">3. Relax</h3>
+                <h3 className="text-xl font-semibold mb-4">{t('landing.step3Title')}</h3>
                 <p className="text-muted-foreground">
-                  Your pets and home are in safe hands. Get updates and enjoy your time away.
+                  {t('landing.step3Description')}
                 </p>
               </CardContent>
             </Card>
@@ -160,17 +160,17 @@ export const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="bg-sand-gradient rounded-2xl p-8 lg:p-12 text-center">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              Ready to find your perfect sitter?
+              {t('landing.readyToFind')}
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join hundreds of pet owners in the Silver Coast who trust us with their beloved companions.
+              {t('landing.joinHundreds')}
             </p>
             <Button 
               size="lg" 
               className="bg-ocean-gradient text-white hover:opacity-90 text-lg px-8 py-4"
               onClick={handleBookNow}
             >
-              Get Started Today
+              {t('landing.getStartedToday')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
@@ -181,9 +181,9 @@ export const LandingPage = () => {
       <section className="py-16 lg:py-24 bg-secondary/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Pet Friendly Locations</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('landing.petFriendlyLocations')}</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover amazing pet-friendly places across the Silver Coast region
+              {t('landing.discoverAmazing')}
             </p>
           </div>
           
@@ -195,10 +195,10 @@ export const LandingPage = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Óbidos</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Medieval charm with pet-friendly cafés and historic walking paths
+                  {t('landing.obidosDescription')}
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/location/obidos">Explore Óbidos</Link>
+                  <Link to="/location/obidos">{t('landing.exploreObidos')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -210,10 +210,10 @@ export const LandingPage = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Caldas da Rainha</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Thermal parks and gardens perfect for relaxing walks
+                  {t('landing.caldasDescription')}
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/location/caldas">Explore Caldas</Link>
+                  <Link to="/location/caldas">{t('landing.exploreCaldas')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -225,10 +225,10 @@ export const LandingPage = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Bombarral</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Peaceful countryside with spacious parks and trails
+                  {t('landing.bombarralDescription')}
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/location/bombarral">Explore Bombarral</Link>
+                  <Link to="/location/bombarral">{t('landing.exploreBombarral')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -240,10 +240,10 @@ export const LandingPage = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Peniche</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Beautiful beaches and coastal restaurants welcoming pets
+                  {t('landing.penicheDescription')}
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/location/peniche">Explore Peniche</Link>
+                  <Link to="/location/peniche">{t('landing.explorePeniche')}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -263,22 +263,22 @@ export const LandingPage = () => {
                 <span className="text-xl font-bold">SilverCoastSitters</span>
               </div>
               <p className="text-primary-foreground/80">
-                Trusted pet and house sitting services in Portugal's Silver Coast region.
+                {t('landing.trustedServices')}
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Services</h4>
+              <h4 className="font-semibold mb-4">{t('landing.services')}</h4>
               <ul className="space-y-2 text-primary-foreground/80">
-                <li>Pet Sitting</li>
-                <li>House Sitting</li>
-                <li>Dog Walking</li>
-                <li>Emergency Care</li>
+                <li>{t('landing.petSitting')}</li>
+                <li>{t('landing.houseSitting')}</li>
+                <li>{t('landing.dogWalking')}</li>
+                <li>{t('landing.emergencyCare')}</li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Locations</h4>
+              <h4 className="font-semibold mb-4">{t('landing.locations')}</h4>
               <ul className="space-y-2 text-primary-foreground/80">
                 <li>Óbidos</li>
                 <li>Caldas da Rainha</li>
@@ -288,12 +288,12 @@ export const LandingPage = () => {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">{t('landing.support')}</h4>
               <ul className="space-y-2 text-primary-foreground/80">
-                <li>Help Center</li>
-                <li>Contact Us</li>
-                <li>Safety</li>
-                <li>Terms & Conditions</li>
+                <li>{t('landing.helpCenter')}</li>
+                <li>{t('landing.contactUs')}</li>
+                <li>{t('landing.safety')}</li>
+                <li>{t('landing.termsConditions')}</li>
               </ul>
             </div>
           </div>

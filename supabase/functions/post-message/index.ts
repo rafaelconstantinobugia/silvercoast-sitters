@@ -29,9 +29,9 @@ serve(async (req) => {
       });
     }
 
-    const { booking_id, body } = await req.json();
+    const { booking_id, content } = await req.json();
 
-    if (!booking_id || !body || body.trim().length === 0) {
+    if (!booking_id || !content || content.trim().length === 0) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -48,9 +48,9 @@ serve(async (req) => {
     }
 
     // Validate message length
-    const bodyValidation = validateStringLength(body.trim(), 'message', 2000);
-    if (!bodyValidation.success) {
-      return new Response(JSON.stringify({ error: bodyValidation.error }), {
+    const contentValidation = validateStringLength(content.trim(), 'message', 2000);
+    if (!contentValidation.success) {
+      return new Response(JSON.stringify({ error: contentValidation.error }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -58,8 +58,8 @@ serve(async (req) => {
 
     // Verify user is participant in booking
     const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings_new')
-      .select('owner_id, sitter_id')
+      .from('bookings')
+      .select('customer_id, sitter_id')
       .eq('id', booking_id)
       .single();
 
@@ -70,7 +70,7 @@ serve(async (req) => {
       });
     }
 
-    if (booking.owner_id !== user.id && booking.sitter_id !== user.id) {
+    if (booking.customer_id !== user.id && booking.sitter_id !== user.id) {
       return new Response(JSON.stringify({ error: 'Not authorized for this booking' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -83,7 +83,7 @@ serve(async (req) => {
       .insert({
         booking_id,
         sender_id: user.id,
-        body: body.trim(),
+        content: content.trim(),
       })
       .select()
       .single();

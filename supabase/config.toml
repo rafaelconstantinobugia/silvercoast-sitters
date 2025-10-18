@@ -92,3 +92,6 @@ verify_jwt = true
 
 [functions.post-message]
 verify_jwt = true
+
+[functions.verify-admin]
+verify_jwt = true

@@ -39,7 +39,7 @@ export function OwnerInvoices() {
 
   const fetchBookings = async () => {
     try {
-      // @ts-ignore - Type instantiation depth
+      // @ts-ignore - Supabase types not yet regenerated after migration
       const { data, error } = await supabase
         .from('bookings_new')
         .select('*')
@@ -48,8 +48,7 @@ export function OwnerInvoices() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      // @ts-ignore - Type mismatch between old and new schema
-      setBookings(data || []);
+      setBookings((data as any) || []);
     } catch (error) {
       console.error("Error loading bookings:", error);
       toast.error("Erro ao carregar reservas");
@@ -77,8 +76,8 @@ export function OwnerInvoices() {
         .getPublicUrl(filePath);
 
       // Store proof URL in booking notes or separate payment_proofs table
-      // @ts-ignore - Table name type mismatch
-      const { error: updateError } = await supabase
+      // @ts-ignore - Supabase types not yet regenerated after migration
+      const { error: updateError } = await (supabase as any)
         .from("bookings_new")
         .update({ 
           notes: `Comprovativo de pagamento: ${publicUrl}`

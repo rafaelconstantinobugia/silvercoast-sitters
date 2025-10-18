@@ -126,13 +126,13 @@ export const SitterDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">New Request</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">{t('sitter.newRequests')}</Badge>;
       case 'confirmed':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">Confirmed</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">{t('common.approved')}</Badge>;
       case 'completed':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Completed</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">{t('sitter.completed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t('common.rejected')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -249,7 +249,7 @@ export const SitterDashboard = () => {
                     <Badge variant="secondary">{pendingRequests.length}</Badge>
                   </div>
                   <div className="grid gap-4">
-                    {pendingRequests.map((booking) => (
+                     {pendingRequests.map((booking) => (
                       <BookingRequestCard 
                         key={booking.id} 
                         booking={booking} 
@@ -257,6 +257,7 @@ export const SitterDashboard = () => {
                         onDecline={handleDeclineBooking}
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -272,12 +273,13 @@ export const SitterDashboard = () => {
                     <Badge variant="secondary">{upcomingBookings.length}</Badge>
                   </div>
                   <div className="grid gap-4">
-                    {upcomingBookings.map((booking) => (
+                     {upcomingBookings.map((booking) => (
                       <BookingCard 
                         key={booking.id} 
                         booking={booking} 
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -293,12 +295,13 @@ export const SitterDashboard = () => {
                     <Badge variant="secondary">{pastBookings.length}</Badge>
                   </div>
                   <div className="grid gap-4">
-                    {pastBookings.map((booking) => (
+                     {pastBookings.map((booking) => (
                       <BookingCard 
                         key={booking.id} 
                         booking={booking} 
                         getStatusBadge={getStatusBadge}
                         formatDate={formatDate}
+                        t={t}
                       />
                     ))}
                   </div>
@@ -318,23 +321,25 @@ const BookingRequestCard = ({
   onAccept,
   onDecline,
   getStatusBadge, 
-  formatDate 
+  formatDate,
+  t
 }: {
   booking: Booking;
   onAccept: (id: string) => void;
   onDecline: (id: string) => void;
   getStatusBadge: (status: string) => JSX.Element;
   formatDate: (date: string) => string;
+  t: (key: string) => string;
 }) => (
   <Card className="card-hover border-l-4 border-l-yellow-500">
     <CardHeader className="pb-3">
       <div className="flex justify-between items-start">
         <div>
           <CardTitle className="text-lg">
-            Pet Sitting Request
+            {t('sitter.petSittingRequest')}
           </CardTitle>
           <p className="text-muted-foreground">
-            Pet Owner
+            {t('sitter.petOwner')}
           </p>
         </div>
         {getStatusBadge(booking.status)}
@@ -386,7 +391,7 @@ const BookingRequestCard = ({
             onClick={() => onDecline(booking.id)}
           >
             <XCircle className="w-4 h-4 mr-2" />
-            Decline
+            {t('sitter.decline')}
           </Button>
           <Button 
             className="bg-ocean-gradient text-white hover:opacity-90"
@@ -394,7 +399,7 @@ const BookingRequestCard = ({
             onClick={() => onAccept(booking.id)}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
-            Accept
+            {t('sitter.accept')}
           </Button>
         </div>
       </div>
@@ -406,21 +411,23 @@ const BookingRequestCard = ({
 const BookingCard = ({ 
   booking, 
   getStatusBadge, 
-  formatDate 
+  formatDate,
+  t
 }: {
   booking: Booking;
   getStatusBadge: (status: string) => JSX.Element;
   formatDate: (date: string) => string;
+  t: (key: string) => string;
 }) => (
   <Card className="card-hover">
     <CardHeader className="pb-3">
       <div className="flex justify-between items-start">
         <div>
           <CardTitle className="text-lg">
-            Pet Sitting
+            {t('sitter.petSitting')}
           </CardTitle>
           <p className="text-muted-foreground">
-            Pet Owner
+            {t('sitter.petOwner')}
           </p>
         </div>
         {getStatusBadge(booking.status)}
@@ -454,7 +461,7 @@ const BookingCard = ({
         </div>
         
         <Button variant="outline" size="sm">
-          Contact Client
+          {t('sitter.contactClient')}
         </Button>
       </div>
 

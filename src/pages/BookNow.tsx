@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ interface Sitter {
 export const BookNow = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const preSelectedSitterId = searchParams.get('sitter');
   
@@ -86,7 +88,7 @@ export const BookNow = () => {
       setServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
-      toast.error('Failed to load services');
+      toast.error(t('bookNow.failedToLoadServices'));
     }
   };
 
@@ -116,7 +118,7 @@ export const BookNow = () => {
       }
     } catch (error) {
       console.error('Error fetching sitters:', error);
-      toast.error('Failed to load sitters');
+      toast.error(t('bookNow.failedToLoadSitters'));
     }
   };
 
@@ -190,13 +192,13 @@ export const BookNow = () => {
 
   const handleSubmitBooking = async () => {
     if (!user) {
-      toast.error("Please sign in to book a service");
+      toast.error(t('bookNow.signInToBook'));
       navigate("/auth");
       return;
     }
 
     if (!formData.serviceId || !formData.startDate || !formData.endDate || !formData.location) {
-      toast.error("Please fill in all required fields");
+      toast.error(t('bookNow.fillRequiredFields'));
       return;
     }
 
@@ -242,11 +244,11 @@ export const BookNow = () => {
         throw bookingError;
       }
 
-      toast.success("Booking request submitted! We'll review and confirm within 24 hours.");
+      toast.success(t('bookNow.requestSubmitted'));
       navigate("/dashboard");
     } catch (error) {
       console.error("Booking error:", error);
-      toast.error(`Failed to submit booking request: ${error.message || 'Please try again.'}`);
+      toast.error(`${t('bookNow.failedToSubmit')}: ${error.message || t('common.error')}`);
     } finally {
       setIsLoading(false);
     }
@@ -262,9 +264,9 @@ export const BookNow = () => {
 
   const getServiceTypeLabel = (type: string) => {
     switch (type) {
-      case 'pet': return 'Pet Services';
-      case 'house': return 'House Services';
-      case 'combined': return 'Combined Services';
+      case 'pet': return t('bookNow.petServices');
+      case 'house': return t('bookNow.houseServices');
+      case 'combined': return t('bookNow.combinedServices');
       default: return type;
     }
   };
@@ -277,25 +279,25 @@ export const BookNow = () => {
         {/* Hero Section */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Book Your Service Now
+            {t('bookNow.title')}
           </h1>
           <p className="text-xl text-muted-foreground mb-6">
-            Choose your service and preferred sitter for personalized care
+            {t('bookNow.subtitle')}
           </p>
           
           {/* Trust Indicators */}
           <div className="flex justify-center gap-8 mb-8">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Zap className="h-5 w-5 text-primary" />
-              <span>Fast Booking</span>
+              <span>{t('bookNow.fastBooking')}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-5 w-5 text-primary" />
-              <span>Verified Sitters</span>
+              <span>{t('bookNow.verifiedSitters')}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-5 w-5 text-primary" />
-              <span>24/7 Support</span>
+              <span>{t('bookNow.support247')}</span>
             </div>
           </div>
         </div>
@@ -305,19 +307,19 @@ export const BookNow = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Service Details
+              {t('bookNow.serviceDetails')}
             </CardTitle>
             <CardDescription>
-              Select your service and preferred sitter for the best care experience
+              {t('bookNow.selectServiceDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Service Selection */}
             <div className="space-y-2">
-              <Label htmlFor="serviceId">Select Service *</Label>
+              <Label htmlFor="serviceId">{t('bookNow.selectService')} *</Label>
               <Select onValueChange={(value) => handleInputChange("serviceId", value)} value={formData.serviceId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose your service" />
+                  <SelectValue placeholder={t('bookNow.chooseService')} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(groupedServices).map(([type, typeServices]) => (
@@ -348,13 +350,13 @@ export const BookNow = () => {
 
             {/* Sitter Selection */}
             <div className="space-y-2">
-              <Label htmlFor="sitterId">Preferred Sitter (Optional)</Label>
+              <Label htmlFor="sitterId">{t('bookNow.preferredSitter')}</Label>
               <Select onValueChange={(value) => handleInputChange("sitterId", value)} value={formData.sitterId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a sitter or let us assign one" />
+                  <SelectValue placeholder={t('bookNow.chooseSitter')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">Let us assign the best sitter</SelectItem>
+                  <SelectItem value="auto">{t('bookNow.letUsAssign')}</SelectItem>
                   {sitters.map((sitter) => (
                     <SelectItem key={sitter.id} value={sitter.id}>
                       <div className="flex items-center gap-3">
@@ -369,7 +371,7 @@ export const BookNow = () => {
                             <span className="text-xs">{sitter.average_rating}</span>
                           </div>
                           {sitter.verified && (
-                            <Badge variant="secondary" className="text-xs">Verified</Badge>
+                            <Badge variant="secondary" className="text-xs">{t('bookNow.verified')}</Badge>
                           )}
                         </div>
                       </div>
@@ -390,7 +392,7 @@ export const BookNow = () => {
                       <span>{selectedSitter.location}</span>
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 text-yellow-500" />
-                        <span>{selectedSitter.average_rating} rating</span>
+                        <span>{selectedSitter.average_rating} {t('bookNow.rating')}</span>
                       </div>
                     </div>
                   </div>
@@ -401,7 +403,7 @@ export const BookNow = () => {
             {/* Dates */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startDate">Start Date *</Label>
+                <Label htmlFor="startDate">{t('bookNow.startDate')} *</Label>
                 <Input
                   id="startDate"
                   type="datetime-local"
@@ -410,7 +412,7 @@ export const BookNow = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="endDate">End Date *</Label>
+                <Label htmlFor="endDate">{t('bookNow.endDate')} *</Label>
                 <Input
                   id="endDate"
                   type="datetime-local"
@@ -424,21 +426,21 @@ export const BookNow = () => {
             {selectedService && formData.startDate && formData.endDate && (
               <div className="p-4 bg-ocean-gradient/10 rounded-lg border border-ocean-gradient/20">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Estimated Total:</span>
+                  <span className="font-medium">{t('bookNow.estimatedTotal')}</span>
                   <span className="text-2xl font-bold bg-ocean-gradient bg-clip-text text-transparent">€{calculateTotalPrice()}</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  ✓ Final price confirmed after admin review
+                  {t('bookNow.finalPriceConfirmed')}
                 </div>
               </div>
             )}
 
             {/* Location */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location *</Label>
+              <Label htmlFor="location">{t('bookNow.location')} *</Label>
               <Input
                 id="location"
-                placeholder="Enter your location (city, neighborhood)"
+                placeholder={t('bookNow.enterLocation')}
                 value={formData.location}
                 onChange={(e) => handleInputChange("location", e.target.value)}
               />
@@ -446,10 +448,10 @@ export const BookNow = () => {
 
             {/* Contact Phone */}
             <div className="space-y-2">
-              <Label htmlFor="contactPhone">Contact Phone</Label>
+              <Label htmlFor="contactPhone">{t('bookNow.contactPhone')}</Label>
               <Input
                 id="contactPhone"
-                placeholder="Your phone number"
+                placeholder={t('bookNow.yourPhone')}
                 value={formData.contactPhone}
                 onChange={(e) => handleInputChange("contactPhone", e.target.value)}
               />
@@ -457,16 +459,16 @@ export const BookNow = () => {
 
             {/* Preferred Time */}
             <div className="space-y-2">
-              <Label htmlFor="preferredTime">Preferred Contact Time</Label>
+              <Label htmlFor="preferredTime">{t('bookNow.preferredContactTime')}</Label>
               <Select onValueChange={(value) => handleInputChange("preferredTime", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="When can we contact you?" />
+                  <SelectValue placeholder={t('bookNow.whenContact')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Morning (9AM - 12PM)</SelectItem>
-                  <SelectItem value="afternoon">Afternoon (12PM - 5PM)</SelectItem>
-                  <SelectItem value="evening">Evening (5PM - 8PM)</SelectItem>
-                  <SelectItem value="anytime">Anytime</SelectItem>
+                  <SelectItem value="morning">{t('bookNow.morning')}</SelectItem>
+                  <SelectItem value="afternoon">{t('bookNow.afternoon')}</SelectItem>
+                  <SelectItem value="evening">{t('bookNow.evening')}</SelectItem>
+                  <SelectItem value="anytime">{t('bookNow.anytime')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -475,9 +477,9 @@ export const BookNow = () => {
             {selectedService?.service_type === "pet" || selectedService?.service_type === "combined" ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Pet Details</Label>
+                  <Label>{t('bookNow.petDetails')}</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addPet}>
-                    Add Another Pet
+                    {t('bookNow.addAnotherPet')}
                   </Button>
                 </div>
                 {formData.pets.map((pet, index) => (
@@ -492,45 +494,27 @@ export const BookNow = () => {
                           onClick={() => removePet(index)}
                           className="text-destructive hover:text-destructive"
                         >
-                          Remove
+                          {t('bookNow.removePet')}
                         </Button>
                       )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label htmlFor={`petName-${index}`}>Name</Label>
+                        <Label htmlFor={`petName-${index}`}>{t('bookNow.petName')}</Label>
                         <Input
                           id={`petName-${index}`}
-                          placeholder="Pet's name"
+                          placeholder={t('bookNow.petName')}
                           value={pet.name}
                           onChange={(e) => handlePetChange(index, "name", e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor={`petBreed-${index}`}>Breed</Label>
+                        <Label htmlFor={`petBreed-${index}`}>{t('bookNow.breed')}</Label>
                         <Input
                           id={`petBreed-${index}`}
-                          placeholder="Pet's breed"
+                          placeholder={t('bookNow.breed')}
                           value={pet.breed}
                           onChange={(e) => handlePetChange(index, "breed", e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor={`petAge-${index}`}>Age</Label>
-                        <Input
-                          id={`petAge-${index}`}
-                          placeholder="Pet's age"
-                          value={pet.age}
-                          onChange={(e) => handlePetChange(index, "age", e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor={`petSpecialNeeds-${index}`}>Special Needs</Label>
-                        <Input
-                          id={`petSpecialNeeds-${index}`}
-                          placeholder="Any special needs or medications"
-                          value={pet.specialNeeds}
-                          onChange={(e) => handlePetChange(index, "specialNeeds", e.target.value)}
                         />
                       </div>
                     </div>
@@ -542,10 +526,10 @@ export const BookNow = () => {
             {/* House Details */}
             {selectedService?.service_type === "house" || selectedService?.service_type === "combined" ? (
               <div className="space-y-2">
-                <Label htmlFor="houseDetails">House Details</Label>
+                <Label htmlFor="houseDetails">{t('bookNow.houseDetails')}</Label>
                 <Textarea
                   id="houseDetails"
-                  placeholder="Tell us about your home (size, security, plants, etc.)"
+                  placeholder={t('bookNow.houseDetailsPlaceholder')}
                   value={formData.houseDetails}
                   onChange={(e) => handleInputChange("houseDetails", e.target.value)}
                 />
@@ -554,10 +538,10 @@ export const BookNow = () => {
 
             {/* Special Instructions */}
             <div className="space-y-2">
-              <Label htmlFor="specialInstructions">Special Instructions</Label>
+              <Label htmlFor="specialInstructions">{t('bookNow.specialInstructions')}</Label>
               <Textarea
                 id="specialInstructions"
-                placeholder="Any specific requirements or instructions for the sitter"
+                placeholder={t('bookNow.additionalInfo')}
                 value={formData.specialInstructions}
                 onChange={(e) => handleInputChange("specialInstructions", e.target.value)}
               />
@@ -571,12 +555,11 @@ export const BookNow = () => {
                 size="lg"
                 className="w-full"
               >
-                {isLoading ? "Submitting..." : "Submit Booking Request"}
+                {isLoading ? t('becomeSitter.submitting') : t('bookNow.requestBooking')}
               </Button>
               
               <p className="text-sm text-muted-foreground text-center">
-                Step 1: We'll review your request and confirm details within 24 hours.<br/>
-                Step 2: Once confirmed, you'll receive a secure payment link to complete your booking.
+                {t('bookNow.finalPriceConfirmed')}
               </p>
             </div>
           </CardContent>

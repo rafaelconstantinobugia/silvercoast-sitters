@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Heart, ArrowLeft } from "lucide-react";
@@ -22,6 +23,7 @@ interface Service {
 
 export const BecomeASitter = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -59,7 +61,7 @@ export const BecomeASitter = () => {
       setServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
-      toast.error('Failed to load services');
+      toast.error(t('becomeSitter.failedLoadServices'));
     }
   };
 
@@ -118,13 +120,13 @@ export const BecomeASitter = () => {
 
       if (error) throw error;
 
-      toast.success('Application submitted successfully!', {
-        description: 'We\'ll review your profile and get back to you within 24 hours.'
+      toast.success(t('becomeSitter.applicationSubmitted'), {
+        description: t('becomeSitter.reviewDescription')
       });
       navigate('/dashboard');
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      toast.error(t('becomeSitter.failedSubmit'));
     } finally {
       setLoading(false);
     }
@@ -133,12 +135,12 @@ export const BecomeASitter = () => {
   const renderStep1 = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Personal Information</CardTitle>
+        <CardTitle>{t('becomeSitter.personalInfo')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">{t('becomeSitter.firstName')}</Label>
             <Input
               id="firstName"
               value={formData.firstName}
@@ -148,7 +150,7 @@ export const BecomeASitter = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">{t('becomeSitter.lastName')}</Label>
             <Input
               id="lastName"
               value={formData.lastName}
@@ -160,7 +162,7 @@ export const BecomeASitter = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phone">{t('becomeSitter.phoneNumber')}</Label>
           <Input
             id="phone"
             type="tel"
@@ -172,32 +174,32 @@ export const BecomeASitter = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="location">{t('becomeSitter.location')}</Label>
           <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select your location" />
+              <SelectValue placeholder={t('becomeSitter.selectLocation')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="obidos">Óbidos</SelectItem>
               <SelectItem value="caldas">Caldas da Rainha</SelectItem>
               <SelectItem value="bombarral">Bombarral</SelectItem>
               <SelectItem value="peniche">Peniche</SelectItem>
-              <SelectItem value="other">Other (Silver Coast)</SelectItem>
+              <SelectItem value="other">{t('becomeSitter.otherSilverCoast')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="experience">Years of Experience</Label>
+          <Label htmlFor="experience">{t('becomeSitter.yearsExperience')}</Label>
           <Select value={formData.experience} onValueChange={(value) => handleInputChange('experience', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select experience level" />
+              <SelectValue placeholder={t('becomeSitter.selectExperience')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="0-1">Less than 1 year</SelectItem>
-              <SelectItem value="1-3">1-3 years</SelectItem>
-              <SelectItem value="3-5">3-5 years</SelectItem>
-              <SelectItem value="5+">5+ years</SelectItem>
+              <SelectItem value="0-1">{t('becomeSitter.lessThan1Year')}</SelectItem>
+              <SelectItem value="1-3">1-3 anos</SelectItem>
+              <SelectItem value="3-5">3-5 anos</SelectItem>
+              <SelectItem value="5+">5+ anos</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -208,11 +210,11 @@ export const BecomeASitter = () => {
   const renderStep2 = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Services & Pricing</CardTitle>
+        <CardTitle>{t('becomeSitter.servicesPricing')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <Label>Services You Offer</Label>
+          <Label>{t('becomeSitter.servicesYouOffer')}</Label>
           <div className="grid sm:grid-cols-2 gap-3">
             {services.map((service) => (
               <div key={service.id} className="flex items-center space-x-2">
@@ -233,7 +235,7 @@ export const BecomeASitter = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="pricePerDay">Price Per Day (€)</Label>
+          <Label htmlFor="pricePerDay">{t('becomeSitter.pricePerDay')}</Label>
           <Input
             id="pricePerDay"
             type="number"
@@ -244,21 +246,21 @@ export const BecomeASitter = () => {
             max="100"
           />
           <p className="text-sm text-muted-foreground">
-            Recommended range: €25-€50 per day
+            {t('becomeSitter.recommendedRange')}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">About You</Label>
+          <Label htmlFor="description">{t('becomeSitter.aboutYou')}</Label>
           <Textarea
             id="description"
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
-            placeholder="Tell potential clients about your experience, what makes you special, and why they should trust you with their pets..."
+            placeholder={t('becomeSitter.aboutYouPlaceholder')}
             rows={4}
           />
           <div className="text-sm text-muted-foreground">
-            Describe your experience, personality, and what makes you the perfect pet sitter.
+            {t('becomeSitter.aboutYouDescription')}
           </div>
         </div>
       </CardContent>
@@ -268,21 +270,21 @@ export const BecomeASitter = () => {
   const renderStep3 = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Final Details</CardTitle>
+        <CardTitle>{t('becomeSitter.finalDetails')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="emergencyContact">Emergency Contact</Label>
+          <Label htmlFor="emergencyContact">{t('becomeSitter.emergencyContact')}</Label>
           <Input
             id="emergencyContact"
             value={formData.emergencyContact}
             onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-            placeholder="Name and phone number"
+            placeholder={t('becomeSitter.emergencyContactPlaceholder')}
           />
         </div>
 
         <div className="space-y-4">
-          <Label>Profile Photo</Label>
+          <Label>{t('becomeSitter.profilePhoto')}</Label>
           <ImageUpload
             value={formData.photoUrl}
             onChange={(url) => handleInputChange('photoUrl', url)}
@@ -298,7 +300,7 @@ export const BecomeASitter = () => {
               checked={formData.hasInsurance}
               onCheckedChange={(checked) => handleInputChange('hasInsurance', checked as boolean)}
             />
-            <Label htmlFor="insurance">I have liability insurance</Label>
+            <Label htmlFor="insurance">{t('becomeSitter.hasInsurance')}</Label>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -308,18 +310,18 @@ export const BecomeASitter = () => {
               onCheckedChange={(checked) => handleInputChange('agreedToTerms', checked as boolean)}
             />
             <Label htmlFor="terms" className="text-sm">
-              I agree to the Terms of Service and Privacy Policy
+              {t('becomeSitter.agreeTerms')}
             </Label>
           </div>
         </div>
 
         <div className="bg-secondary/50 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">What happens next?</h4>
+          <h4 className="font-semibold mb-2">{t('becomeSitter.whatHappensNext')}</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• We'll review your application within 24 hours</li>
-            <li>• Background check and reference verification</li>
-            <li>• Video interview with our team</li>
-            <li>• Profile approval and activation</li>
+            <li>• {t('becomeSitter.reviewWithin24h')}</li>
+            <li>• {t('becomeSitter.backgroundCheck')}</li>
+            <li>• {t('becomeSitter.videoInterview')}</li>
+            <li>• {t('becomeSitter.profileApproval')}</li>
           </ul>
         </div>
       </CardContent>
@@ -335,19 +337,19 @@ export const BecomeASitter = () => {
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" onClick={handleBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {t('becomeSitter.back')}
           </Button>
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold">Become a Sitter</h1>
+            <h1 className="text-2xl font-bold">{t('becomeSitter.title')}</h1>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step {step} of 3</span>
-            <span className="text-sm text-muted-foreground">{Math.round((step / 3) * 100)}% complete</span>
+            <span className="text-sm text-muted-foreground">{t('becomeSitter.stepOf').replace('{step}', String(step)).replace('{total}', '3')}</span>
+            <span className="text-sm text-muted-foreground">{t('becomeSitter.complete').replace('{percent}', String(Math.round((step / 3) * 100)))}</span>
           </div>
           <div className="w-full bg-secondary rounded-full h-2">
             <div 
@@ -365,14 +367,14 @@ export const BecomeASitter = () => {
         {/* Navigation */}
         <div className="flex justify-between mt-8">
           <Button variant="outline" onClick={handleBack}>
-            {step === 1 ? 'Cancel' : 'Previous'}
+            {step === 1 ? t('becomeSitter.cancel') : t('becomeSitter.previous')}
           </Button>
           <Button 
             onClick={handleNext}
             className="bg-ocean-gradient text-white hover:opacity-90"
             disabled={loading || (step === 3 && !formData.agreedToTerms)}
           >
-            {loading ? 'Submitting...' : step === 3 ? 'Submit Application' : 'Next'}
+            {loading ? t('becomeSitter.submitting') : step === 3 ? t('becomeSitter.submitApplication') : t('becomeSitter.next')}
           </Button>
         </div>
       </div>

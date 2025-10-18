@@ -62,3 +62,27 @@ inspector_port = 8083
 
 [analytics]
 enabled = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.create-booking]
+verify_jwt = true
+
+[functions.sitter-accept]
+verify_jwt = true
+
+[functions.owner-confirm]
+verify_jwt = true
+
+[functions.admin-mark-payment-received]
+verify_jwt = true
+
+[functions.admin-complete-booking]
+verify_jwt = true
+
+[functions.post-message]
+verify_jwt = true

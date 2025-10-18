@@ -272,6 +272,7 @@ const translations = {
     'header.enterRegister': 'Entrar/Registar',
     'header.profile': 'Perfil',
     'header.myBookings': 'As Minhas Reservas',
+    'header.sitterDashboard': 'Painel Sitter',
     
     // Search
     'search.findPerfectSitter': 'Encontre o Seu Pet Sitter Perfeito',

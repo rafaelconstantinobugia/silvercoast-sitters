@@ -28,15 +28,15 @@ serve(async (req) => {
       });
     }
 
-    // Check if user is admin
-    const { data: roles } = await supabaseClient
-      .from('user_roles')
+    // Verify admin role
+    const { data: profile, error: roleError } = await supabaseClient
+      .from('profiles')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .eq('role', 'admin')
       .single();
 
-    if (!roles) {
+    if (roleError || !profile) {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ serve(async (req) => {
     // Get invoice and booking details
     const { data: invoice, error: invoiceError } = await supabaseClient
       .from('invoices')
-      .select('booking_id')
+      .select('booking_id, total_cents, status')
       .eq('id', invoice_id)
       .single();
 
@@ -66,7 +66,17 @@ serve(async (req) => {
       });
     }
 
-    // Update invoice status
+    // Validate amount
+    if (amount_cents !== invoice.total_cents) {
+      return new Response(JSON.stringify({ 
+        error: `Amount mismatch. Expected ${invoice.total_cents} cents, received ${amount_cents} cents` 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Update invoice status to paid_escrow
     const { error: invoiceUpdateError } = await supabaseClient
       .from('invoices')
       .update({ status: 'paid_escrow' })
@@ -93,21 +103,22 @@ serve(async (req) => {
       console.error('Payment update error:', paymentUpdateError);
     }
 
-    // Check if booking starts soon, update status to in_progress
+    // Get booking details to check start time
     const { data: booking } = await supabaseClient
-      .from('bookings_new')
+      .from('bookings')
       .select('start_ts')
       .eq('id', invoice.booking_id)
       .single();
 
+    // If booking starts within 24 hours, mark as in_progress
     if (booking) {
-      const startTime = new Date(booking.start_ts);
       const now = new Date();
-      const hoursDiff = (startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      const startTime = new Date(booking.start_ts);
+      const hoursUntilStart = (startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-      if (hoursDiff <= 24 && hoursDiff >= 0) {
+      if (hoursUntilStart <= 24 && hoursUntilStart > 0) {
         await supabaseClient
-          .from('bookings_new')
+          .from('bookings')
           .update({ status: 'in_progress' })
           .eq('id', invoice.booking_id);
       }

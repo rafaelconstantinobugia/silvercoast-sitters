@@ -5,27 +5,23 @@ import { validateUUID, validateURL } from '../_shared/validation.ts';
 console.log('Owner upload payment proof function started');
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get the authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Missing authorization header');
     }
 
-    // Create Supabase client with user's auth
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
@@ -36,13 +32,12 @@ Deno.serve(async (req) => {
       throw new Error('Missing required fields: booking_id, proof_url');
     }
 
-    // Validate booking_id format
+    // Validate inputs
     const bookingValidation = validateUUID(booking_id, 'booking_id');
     if (!bookingValidation.success) {
       throw new Error(bookingValidation.error);
     }
 
-    // Validate proof_url format
     const urlValidation = validateURL(proof_url, 'proof_url');
     if (!urlValidation.success) {
       throw new Error(urlValidation.error);
@@ -50,72 +45,58 @@ Deno.serve(async (req) => {
 
     console.log('Processing payment proof upload:', { booking_id, user_id: user.id });
 
-    // Verify the booking belongs to this user
+    // Verify booking belongs to user and is in confirmed status
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select('id, customer_id, status, invoice_id')
+      .select('owner_id, status')
       .eq('id', booking_id)
-      .eq('customer_id', user.id)
       .single();
 
     if (bookingError || !booking) {
-      throw new Error('Booking not found or unauthorized');
+      throw new Error('Booking not found');
     }
 
-    if (booking.status !== 'awaiting_payment') {
-      throw new Error('Booking is not in awaiting_payment status');
+    if (booking.owner_id !== user.id) {
+      throw new Error('Unauthorized');
     }
 
-    // Get or create invoice
-    let invoiceId = booking.invoice_id;
-    
-    if (!invoiceId) {
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert({
-          booking_id: booking.id,
-          status: 'pending'
-        })
-        .select('id')
-        .single();
+    if (booking.status !== 'confirmed') {
+      throw new Error('Booking must be in confirmed status to upload payment proof');
+    }
 
-      if (invoiceError) throw invoiceError;
-      invoiceId = invoice.id;
+    // Get invoice
+    const { data: invoice, error: invoiceError } = await supabase
+      .from('invoices')
+      .select('id, status, total_cents')
+      .eq('booking_id', booking_id)
+      .single();
 
-      // Update booking with invoice_id
-      await supabase
-        .from('bookings')
-        .update({ invoice_id: invoiceId })
-        .eq('id', booking.id);
+    if (invoiceError || !invoice) {
+      throw new Error('Invoice not found for this booking');
     }
 
     // Create payment record with proof
     const { data: payment, error: paymentError } = await supabase
       .from('payments')
       .insert({
-        invoice_id: invoiceId,
-        payment_proof_url: proof_url,
-        uploaded_by: user.id
+        invoice_id: invoice.id,
+        payer_id: user.id,
+        amount_cents: invoice.total_cents,
+        method: 'mbway',
+        proof_url,
       })
       .select()
       .single();
 
     if (paymentError) throw paymentError;
 
-    // Update booking status to awaiting_payment_review
-    const { error: updateError } = await supabase
-      .from('bookings')
-      .update({ status: 'awaiting_payment_review' })
-      .eq('id', booking_id);
-
-    if (updateError) throw updateError;
-
-    // Log analytics event
+    // Log analytics
     await supabase.from('analytics_events').insert({
-      event_type: 'payment_proof_uploaded',
-      event_data: {
+      user_id: user.id,
+      event_name: 'payment_proof_uploaded',
+      meta: {
         booking_id,
-        invoice_id: invoiceId,
+        invoice_id: invoice.id,
         payment_id: payment.id
       }
     });
@@ -126,7 +107,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         payment_id: payment.id,
-        message: 'Payment proof uploaded successfully. Awaiting admin review.' 
+        message: 'Comprovativo enviado. Aguarde validação do admin.' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

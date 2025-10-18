@@ -96,7 +96,7 @@ serve(async (req) => {
 
     // Create booking
     const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings_new')
+      .from('bookings')
       .insert({
         listing_id,
         owner_id: user.id,

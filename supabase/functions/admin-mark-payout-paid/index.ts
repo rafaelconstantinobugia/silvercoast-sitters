@@ -5,42 +5,36 @@ import { validateUUID, validateEnum, validateStringLength } from '../_shared/val
 console.log('Admin mark payout paid function started');
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get the authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Missing authorization header');
     }
 
-    // Create Supabase client with user's auth
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify the user is authenticated and is admin
-    const supabaseClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
 
-    // Check if user is admin
-    const { data: roleData } = await supabase
-      .from('user_roles')
+    // Verify admin role
+    const { data: profile, error: roleError } = await supabase
+      .from('profiles')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .eq('role', 'admin')
-      .maybeSingle();
+      .single();
 
-    if (!roleData) {
+    if (roleError || !profile) {
       throw new Error('Admin access required');
     }
 
@@ -50,7 +44,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing required field: payout_id');
     }
 
-    // Validate payout_id format
+    // Validate payout_id
     const payoutValidation = validateUUID(payout_id, 'payout_id');
     if (!payoutValidation.success) {
       throw new Error(payoutValidation.error);
@@ -61,14 +55,14 @@ Deno.serve(async (req) => {
       const methodValidation = validateEnum(
         payment_method,
         'payment_method',
-        ['bank_transfer', 'paypal', 'stripe', 'cash', 'other']
+        ['bank_transfer', 'mbway', 'cash', 'other']
       );
       if (!methodValidation.success) {
         throw new Error(methodValidation.error);
       }
     }
 
-    // Validate transaction_reference length if provided
+    // Validate transaction_reference if provided
     if (transaction_reference) {
       const refValidation = validateStringLength(transaction_reference, 'transaction_reference', 255);
       if (!refValidation.success) {
@@ -89,8 +83,8 @@ Deno.serve(async (req) => {
       throw new Error('Payout not found');
     }
 
-    if (payout.status !== 'pending') {
-      throw new Error('Payout is not in pending status');
+    if (payout.status !== 'scheduled') {
+      throw new Error(`Payout must be in scheduled status, currently: ${payout.status}`);
     }
 
     // Update payout status to paid
@@ -106,31 +100,29 @@ Deno.serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    // Log to ledger
+    // Log ledger
     await supabase.from('ledger').insert({
-      entity_type: 'payout',
-      entity_id: payout_id,
-      event_type: 'payout_marked_paid',
-      amount_cents: payout.amount_cents,
-      currency: 'EUR',
-      metadata: {
+      event_name: 'payout_paid',
+      actor_id: user.id,
+      booking_id: payout.booking_id,
+      payout_id: payout.id,
+      meta: {
         sitter_id: payout.sitter_id,
-        booking_id: payout.booking_id,
-        marked_by: user.id,
+        amount_cents: payout.amount_cents,
         payment_method: payment_method || 'bank_transfer',
         transaction_reference
       }
     });
 
-    // Log analytics event
+    // Log analytics
     await supabase.from('analytics_events').insert({
-      event_type: 'payout_marked_paid',
-      event_data: {
+      user_id: user.id,
+      event_name: 'payout_marked_paid',
+      meta: {
         payout_id,
         sitter_id: payout.sitter_id,
         booking_id: payout.booking_id,
-        amount_cents: payout.amount_cents,
-        marked_by: user.id
+        amount_cents: payout.amount_cents
       }
     });
 
@@ -140,7 +132,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         payout_id,
-        message: 'Payout marked as paid successfully' 
+        message: 'Payout marcado como pago' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

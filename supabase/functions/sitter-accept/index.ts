@@ -39,8 +39,8 @@ serve(async (req) => {
 
     // Verify sitter owns this booking
     const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings_new')
-      .select('sitter_id, owner_id')
+      .from('bookings')
+      .select('sitter_id, owner_id, status')
       .eq('id', booking_id)
       .single();
 
@@ -51,9 +51,16 @@ serve(async (req) => {
       });
     }
 
-    // Update booking
+    if (booking.status !== 'pending') {
+      return new Response(JSON.stringify({ error: 'Booking must be in pending status' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Update booking to accepted with proposed price
     const { error: updateError } = await supabaseClient
-      .from('bookings_new')
+      .from('bookings')
       .update({
         status: 'accepted',
         price_cents: proposed_price_cents,

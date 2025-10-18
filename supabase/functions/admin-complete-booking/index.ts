@@ -28,22 +28,22 @@ serve(async (req) => {
       });
     }
 
-    // Check if user is admin
-    const { data: roles } = await supabaseClient
-      .from('user_roles')
+    // Verify admin role
+    const { data: profile, error: roleError } = await supabaseClient
+      .from('profiles')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .eq('role', 'admin')
       .single();
 
-    if (!roles) {
+    if (roleError || !profile) {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { booking_id, platform_fee_percent = 15 } = await req.json();
+    const { booking_id, platform_fee_percent } = await req.json();
 
     if (!booking_id) {
       return new Response(JSON.stringify({ error: 'Missing booking_id' }), {
@@ -54,8 +54,8 @@ serve(async (req) => {
 
     // Get booking details
     const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings_new')
-      .select('sitter_id, price_cents')
+      .from('bookings')
+      .select('sitter_id, price_cents, status')
       .eq('id', booking_id)
       .single();
 
@@ -68,7 +68,7 @@ serve(async (req) => {
 
     // Update booking to completed
     const { error: updateError } = await supabaseClient
-      .from('bookings_new')
+      .from('bookings')
       .update({ status: 'completed' })
       .eq('id', booking_id);
 
@@ -80,8 +80,15 @@ serve(async (req) => {
       });
     }
 
-    // Calculate payout amount (price minus platform fee)
-    const platformFee = Math.floor(booking.price_cents * (platform_fee_percent / 100));
+    // Get platform fee from settings or use provided value
+    const { data: feeSetting } = await supabaseClient
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'PLATFORM_FEE_PERCENT')
+      .single();
+
+    const feePercent = platform_fee_percent || (feeSetting?.value ? parseInt(feeSetting.value) : 15);
+    const platformFee = Math.round((booking.price_cents * feePercent) / 100);
     const payoutAmount = booking.price_cents - platformFee;
 
     // Create payout record
@@ -92,7 +99,7 @@ serve(async (req) => {
         sitter_id: booking.sitter_id,
         amount_cents: payoutAmount,
         status: 'scheduled',
-        notes: `Plataforma reteve ${platform_fee_percent}% (€${(platformFee / 100).toFixed(2)})`,
+        notes: `Taxa plataforma: ${feePercent}% (€${(platformFee / 100).toFixed(2)})`,
       })
       .select()
       .single();
@@ -111,7 +118,7 @@ serve(async (req) => {
       actor_id: user.id,
       booking_id,
       payout_id: payout.id,
-      meta: { platform_fee_percent, platform_fee, payout_amount: payoutAmount },
+      meta: { platform_fee_percent: feePercent, platform_fee: platformFee, payout_amount: payoutAmount },
     });
 
     // Log analytics

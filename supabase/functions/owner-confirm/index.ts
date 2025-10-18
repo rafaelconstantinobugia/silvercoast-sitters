@@ -39,8 +39,8 @@ serve(async (req) => {
 
     // Verify owner owns this booking
     const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings_new')
-      .select('owner_id, price_cents, status')
+      .from('bookings')
+      .select('owner_id, sitter_id, price_cents, status, start_ts, end_ts')
       .eq('id', booking_id)
       .single();
 
@@ -60,7 +60,7 @@ serve(async (req) => {
 
     // Update booking to confirmed
     const { error: updateError } = await supabaseClient
-      .from('bookings_new')
+      .from('bookings')
       .update({ status: 'confirmed' })
       .eq('id', booking_id);
 
@@ -72,20 +72,40 @@ serve(async (req) => {
       });
     }
 
-    // Generate invoice
+    // Generate invoice number using DB function
+    const { data: invoiceNumber } = await supabaseClient.rpc('generate_invoice_number');
+
+    // Get settings from system_settings
     const { data: settings } = await supabaseClient
-      .from('platform_settings')
+      .from('system_settings')
       .select('key, value')
-      .in('key', ['INVOICE_PREFIX', 'INVOICE_DUE_DAYS', 'MBWAY_NUMBER', 'BANK_IBAN']);
+      .in('key', ['INVOICE_DUE_DAYS']);
 
-    const settingsMap = settings?.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>) || {};
+    const settingsMap = settings?.reduce((acc, s) => ({ 
+      ...acc, 
+      [s.key]: typeof s.value === 'string' ? JSON.parse(s.value) : s.value 
+    }), {} as Record<string, any>) || {};
     
-    const invoiceNumber = `${settingsMap.INVOICE_PREFIX || 'SCS-'}${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    const dueDays = settingsMap.INVOICE_DUE_DAYS || 2;
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + parseInt(settingsMap.INVOICE_DUE_DAYS || '2'));
+    dueDate.setDate(dueDate.getDate() + dueDays);
 
-    const paymentInstructions = `MB WAY: ${settingsMap.MBWAY_NUMBER || 'N/A'}\nReferência: ${invoiceNumber}\n\nTransferência Bancária:\nIBAN: ${settingsMap.BANK_IBAN || 'N/A'}\nReferência: ${invoiceNumber}`;
+    // Get payment instructions from env
+    const mbway = Deno.env.get('MBWAY_NUMBER') || '912345678';
+    const iban = Deno.env.get('BANK_IBAN') || 'PT50...';
+    
+    const paymentInstructions = `
+Pagamento por MB WAY: ${mbway}
+Referência: ${invoiceNumber}
 
+Pagamento por Transferência Bancária:
+IBAN: ${iban}
+Referência: ${invoiceNumber}
+
+Por favor, envie o comprovativo após realizar o pagamento através do seu dashboard.
+    `.trim();
+
+    // Create invoice
     const { data: invoice, error: invoiceError } = await supabaseClient
       .from('invoices')
       .insert({
@@ -94,7 +114,9 @@ serve(async (req) => {
         issue_date: new Date().toISOString().split('T')[0],
         due_date: dueDate.toISOString().split('T')[0],
         total_cents: booking.price_cents,
+        currency: 'EUR',
         status: 'awaiting_payment',
+        payment_method: 'mbway',
         payment_instructions: paymentInstructions,
       })
       .select()
@@ -108,28 +130,33 @@ serve(async (req) => {
       });
     }
 
-    // Create invoice line
+    // Create invoice line item
+    const start = new Date(booking.start_ts);
+    const end = new Date(booking.end_ts);
+    const hours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60));
+    
     await supabaseClient.from('invoice_lines').insert({
       invoice_id: invoice.id,
-      description: 'Serviço de Pet Sitting',
-      qty: 1,
-      unit_price_cents: booking.price_cents,
+      description: `Serviço de Pet Sitting (${hours}h)`,
+      qty: hours,
+      unit_price_cents: Math.round(booking.price_cents / hours),
       total_cents: booking.price_cents,
     });
 
-    // Log events
+    // Log analytics
     await supabaseClient.from('analytics_events').insert({
       user_id: user.id,
       event_name: 'owner_confirmed',
       meta: { booking_id },
     });
 
+    // Log ledger
     await supabaseClient.from('ledger').insert({
       event_name: 'invoice_issued',
       actor_id: user.id,
       booking_id,
       invoice_id: invoice.id,
-      meta: { invoice_number: invoiceNumber },
+      meta: { invoice_number: invoiceNumber, total_cents: booking.price_cents },
     });
 
     return new Response(JSON.stringify({ success: true, invoice }), {

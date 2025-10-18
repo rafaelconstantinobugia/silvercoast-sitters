@@ -18,6 +18,8 @@ import { BookingSuccess } from "./pages/BookingSuccess";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { LocationPage } from "./pages/LocationPage";
 import NotFound from "./pages/NotFound";
+import { AdminPayments } from "./pages/AdminPayments";
+import { OwnerInvoices } from "./pages/OwnerInvoices";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/booking/:sitterId" element={<BookingCheckout />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin-payments" element={<AdminPayments />} />
+            <Route path="/my-invoices" element={<OwnerInvoices />} />
             <Route path="/location/:location" element={<LocationPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
